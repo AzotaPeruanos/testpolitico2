@@ -1,21 +1,40 @@
 import streamlit as st
 
-# Configuración de página
+# 1. Configuración de página y Estética (Parecido a Flet)
 st.set_page_config(page_title="Brújula Política", layout="centered")
 
-# Estilos personalizados (Azul y botones de colores)
 st.markdown("""
     <style>
-    .stApp { background-color: #e3f2fd; }
-    div.stButton > button:first-child { height: 3em; border-radius: 10px; font-weight: bold; }
+    /* Fondo azul claro como en Flet */
+    .stApp {
+        background-color: #e3f2fd;
+    }
+    /* Estilo para los botones */
+    div.stButton > button {
+        width: 100%;
+        border-radius: 12px;
+        height: 3.5em;
+        font-weight: bold;
+        font-size: 18px;
+        border: none;
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+        transition: 0.3s;
+    }
+    /* Colores específicos para botones */
+    .stButton>button:hover {
+        transform: translateY(-2px);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# Inicializar estado
+# 2. Inicializar estado del test
 if 'idx' not in st.session_state:
-    st.session_state.idx, st.session_state.x, st.session_state.y = 0, 0.0, 0.0
+    st.session_state.idx = 0
+    st.session_state.x = 0.0
+    st.session_state.y = 0.0
     st.session_state.history = []
 
+# Banco de 65 preguntas (Asegúrate de que estén todas aquí)
 questions = [
     {"t": "1. El mercado libre beneficia a todos a largo plazo.", "a": "x", "v": 1},
     {"t": "2. La sanidad debe ser 100% pública y gratuita.", "a": "x", "v": -1},
@@ -85,38 +104,60 @@ questions = [
 ]
 
 def responder(m):
-    q = questions[st.session_state.idx]
-    p = m * q["v"]
-    st.session_state.history.append((p if q["a"]=="x" else 0, p if q["a"]=="y" else 0))
-    if q["a"]=="x": st.session_state.x += p
-    else: st.session_state.y += p
-    st.session_state.idx += 1
+    # Solo procesamos si hay preguntas pendientes
+    if st.session_state.idx < len(questions):
+        q = questions[st.session_state.idx]
+        p = m * q["v"]
+        st.session_state.history.append((p if q["a"]=="x" else 0, p if q["a"]=="y" else 0))
+        if q["a"]=="x": st.session_state.x += p
+        else: st.session_state.y += p
+        st.session_state.idx += 1
 
-# --- Interfaz ---
-if st.session_state.idx < len(questions):
-    st.title("Brújula Política")
-    st.write(f"Pregunta {st.session_state.idx + 1} de {len(questions)}")
-    st.progress(st.session_state.idx / len(questions))
-    st.subheader(questions[st.session_state.idx]["t"])
-    
-    st.button("Totalmente de acuerdo", on_click=responder, args=(2,), type="primary")
-    st.button("De acuerdo", on_click=responder, args=(1,))
-    st.button("Neutral", on_click=responder, args=(0,))
-    st.button("En desacuerdo", on_click=responder, args=(-1,))
-    st.button("Totalmente en desacuerdo", on_click=responder, args=(-2,))
-    
+def go_back():
     if st.session_state.idx > 0:
-        if st.button("← Volver"):
-            st.session_state.idx -= 1
-            px, py = st.session_state.history.pop()
-            st.session_state.x -= px
-            st.session_state.y -= py
-            st.rerun()
-else:
-    st.header("Tu Resultado")
-    st.image("chart.png")
-    st.write(f"Coordenadas: X={st.session_state.x}, Y={st.session_state.y}")
-    if st.button("Reiniciar"):
-        st.session_state.idx, st.session_state.x, st.session_state.y = 0, 0.0, 0.0
+        st.session_state.idx -= 1
+        px, py = st.session_state.history.pop()
+        st.session_state.x -= px
+        st.session_state.y -= py
+
+# --- Pantalla de Resultados ---
+if st.session_state.idx >= len(questions):
+    st.markdown("<h1 style='text-align: center; color: #0d47a1;'>Tu Perfil Político</h1>", unsafe_allow_html=True)
+    
+    # Mostrar el mapa (chart.png)
+    st.image("chart.png", use_container_width=True)
+    
+    st.markdown(f"""
+        <div style='background-color: #1e88e5; padding: 20px; border-radius: 10px; color: white; text-align: center;'>
+            <h3>Coordenadas Finales</h3>
+            <p style='font-size: 24px;'>Eje Económico (X): {round(st.session_state.x, 2)}</p>
+            <p style='font-size: 24px;'>Eje Social (Y): {round(st.session_state.y, 2)}</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    if st.button("Repetir el Test"):
+        st.session_state.idx = 0
+        st.session_state.x = 0.0
+        st.session_state.y = 0.0
         st.session_state.history = []
         st.rerun()
+
+# --- Pantalla de Preguntas ---
+else:
+    st.markdown(f"<p style='text-align: center; color: #546e7a;'>Pregunta {st.session_state.idx + 1} de {len(questions)}</p>", unsafe_allow_html=True)
+    st.progress(st.session_state.idx / len(questions))
+    
+    st.markdown(f"<h2 style='text-align: center; color: #1565c0; padding: 20px;'>{questions[st.session_state.idx]['t']}</h2>", unsafe_allow_html=True)
+    
+    # Botones con colores
+    if st.button("✅ Totalmente de acuerdo"): responder(2); st.rerun()
+    if st.button("👍 De acuerdo"): responder(1); st.rerun()
+    if st.button("⚪ Neutral / No sé"): responder(0); st.rerun()
+    if st.button("👎 En desacuerdo"): responder(-1); st.rerun()
+    if st.button("❌ Totalmente en desacuerdo"): responder(-2); st.rerun()
+    
+    st.write("") # Espacio
+    if st.session_state.idx > 0:
+        if st.button("← Volver a la pregunta anterior"):
+            go_back()
+            st.rerun()
