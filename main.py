@@ -1,40 +1,59 @@
 import streamlit as st
 
-# 1. Configuración de página y Estética (Parecido a Flet)
+# 1. Configuración de página y Estética Avanzada
 st.set_page_config(page_title="Brújula Política", layout="centered")
 
 st.markdown("""
     <style>
-    /* Fondo azul claro como en Flet */
-    .stApp {
-        background-color: #e3f2fd;
-    }
-    /* Estilo para los botones */
-    div.stButton > button {
+    .stApp { background-color: #e3f2fd; }
+    
+    /* Contenedor de botones para que todos midan lo mismo */
+    .stButton > button {
         width: 100%;
-        border-radius: 12px;
+        max-width: 500px;
+        margin: 0 auto;
+        display: block;
+        border-radius: 10px;
         height: 3.5em;
         font-weight: bold;
-        font-size: 18px;
-        border: none;
-        box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
-        transition: 0.3s;
+        font-size: 16px;
+        background-color: white;
+        border: 2px solid #1e88e5;
+        color: #1e88e5;
     }
-    /* Colores específicos para botones */
-    .stButton>button:hover {
-        transform: translateY(-2px);
+    
+    /* Centrar elementos */
+    .stMarkdown, .stImage {
+        display: flex;
+        justify-content: center;
+    }
+
+    /* Estilo del punto rojo sobre la imagen */
+    .container {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        margin: auto;
+    }
+    .dot {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background-color: red;
+        border-radius: 50%;
+        border: 2px solid white;
+        transform: translate(-50%, -50%);
+        z-index: 10;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Inicializar estado del test
+# 2. Inicializar estado
 if 'idx' not in st.session_state:
-    st.session_state.idx = 0
-    st.session_state.x = 0.0
-    st.session_state.y = 0.0
+    st.session_state.idx, st.session_state.x, st.session_state.y = 0, 0.0, 0.0
     st.session_state.history = []
 
-# Banco de 65 preguntas (Asegúrate de que estén todas aquí)
+# (Aquí van las 65 preguntas que ya tienes...)
 questions = [
     {"t": "1. El mercado libre beneficia a todos a largo plazo.", "a": "x", "v": 1},
     {"t": "2. La sanidad debe ser 100% pública y gratuita.", "a": "x", "v": -1},
@@ -103,61 +122,72 @@ questions = [
     {"t": "65. La disciplina escolar debe ser estricta.", "a": "y", "v": 1}
 ]
 
+def get_ideology(x, y):
+    if x > 10 and y > 10: return "Derecha Autoritaria (Conservadurismo)"
+    if x < -10 and y > 10: return "Izquierda Autoritaria (Socialismo de Estado)"
+    if x > 10 and y < -10: return "Derecha Libertaria (Anarcocapitalismo)"
+    if x < -10 and y < -10: return "Izquierda Libertaria (Anarcosindicalismo)"
+    if abs(x) <= 10 and abs(y) <= 10: return "Centrismo / Moderado"
+    return "Tendencia Mixta"
+
 def responder(m):
-    # Solo procesamos si hay preguntas pendientes
-    if st.session_state.idx < len(questions):
-        q = questions[st.session_state.idx]
-        p = m * q["v"]
-        st.session_state.history.append((p if q["a"]=="x" else 0, p if q["a"]=="y" else 0))
-        if q["a"]=="x": st.session_state.x += p
-        else: st.session_state.y += p
-        st.session_state.idx += 1
+    q = questions[st.session_state.idx]
+    p = m * q["v"]
+    st.session_state.history.append((p if q["a"]=="x" else 0, p if q["a"]=="y" else 0))
+    if q["a"]=="x": st.session_state.x += p
+    else: st.session_state.y += p
+    st.session_state.idx += 1
 
-def go_back():
-    if st.session_state.idx > 0:
-        st.session_state.idx -= 1
-        px, py = st.session_state.history.pop()
-        st.session_state.x -= px
-        st.session_state.y -= py
-
-# --- Pantalla de Resultados ---
+# --- LÓGICA DE PANTALLAS ---
 if st.session_state.idx >= len(questions):
-    st.markdown("<h1 style='text-align: center; color: #0d47a1;'>Tu Perfil Político</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #0d47a1;'>Tu Resultado</h1>", unsafe_allow_html=True)
     
-    # Mostrar el mapa (chart.png)
-    st.image("chart.png", use_container_width=True)
+    ideologia = get_ideology(st.session_state.x, st.session_state.y)
     
+    # Cálculo del punto rojo (Mapeo de coordenadas a % de la imagen)
+    # Centro es 50%. Rango aprox -60 a 60.
+    left_pos = 50 + (st.session_state.x * 0.7) 
+    top_pos = 50 - (st.session_state.y * 0.7)
+
+    # Mostrar imagen con punto rojo superpuesto
     st.markdown(f"""
-        <div style='background-color: #1e88e5; padding: 20px; border-radius: 10px; color: white; text-align: center;'>
-            <h3>Coordenadas Finales</h3>
-            <p style='font-size: 24px;'>Eje Económico (X): {round(st.session_state.x, 2)}</p>
-            <p style='font-size: 24px;'>Eje Social (Y): {round(st.session_state.y, 2)}</p>
+        <div class="container">
+            <img src="https://raw.githubusercontent.com/{st.experimental_user.email if hasattr(st, 'experimental_user') else 'tu_usuario'}/testpolitico2/main/chart.png" style="width:100%">
+            <div class="dot" style="left: {left_pos}%; top: {top_pos}%;"></div>
         </div>
     """, unsafe_allow_html=True)
     
-    if st.button("Repetir el Test"):
+    # En caso de que la URL de arriba falle, usamos el método estándar debajo:
+    st.image("chart.png", caption="Mapa Político")
+
+    st.success(f"Tu ideología es: **{ideologia}**")
+    st.info(f"Coordenadas: X: {round(st.session_state.x, 2)} | Y: {round(st.session_state.y, 2)}")
+    
+    if st.button("Reiniciar Test"):
         st.session_state.idx = 0
-        st.session_state.x = 0.0
-        st.session_state.y = 0.0
+        st.session_state.x, st.session_state.y = 0.0, 0.0
         st.session_state.history = []
         st.rerun()
 
-# --- Pantalla de Preguntas ---
 else:
-    st.markdown(f"<p style='text-align: center; color: #546e7a;'>Pregunta {st.session_state.idx + 1} de {len(questions)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: center;'>Pregunta {st.session_state.idx + 1} de {len(questions)}</p>", unsafe_allow_html=True)
     st.progress(st.session_state.idx / len(questions))
+    st.markdown(f"<h3 style='text-align: center; color: #1565c0;'>{questions[st.session_state.idx]['t']}</h3>", unsafe_allow_html=True)
     
-    st.markdown(f"<h2 style='text-align: center; color: #1565c0; padding: 20px;'>{questions[st.session_state.idx]['t']}</h2>", unsafe_allow_html=True)
-    
-    # Botones con colores
-    if st.button("✅ Totalmente de acuerdo"): responder(2); st.rerun()
-    if st.button("👍 De acuerdo"): responder(1); st.rerun()
-    if st.button("⚪ Neutral / No sé"): responder(0); st.rerun()
-    if st.button("👎 En desacuerdo"): responder(-1); st.rerun()
-    if st.button("❌ Totalmente en desacuerdo"): responder(-2); st.rerun()
-    
-    st.write("") # Espacio
-    if st.session_state.idx > 0:
-        if st.button("← Volver a la pregunta anterior"):
-            go_back()
-            st.rerun()
+    # Botones centrados y del mismo tamaño
+    cols = st.columns([1, 5, 1])
+    with cols[1]:
+        if st.button("Totalmente de acuerdo"): responder(2); st.rerun()
+        if st.button("De acuerdo"): responder(1); st.rerun()
+        if st.button("Neutral / No sé"): responder(0); st.rerun()
+        if st.button("En desacuerdo"): responder(-1); st.rerun()
+        if st.button("Totalmente en desacuerdo"): responder(-2); st.rerun()
+        
+        if st.session_state.idx > 0:
+            st.write("")
+            if st.button("← Volver"):
+                st.session_state.idx -= 1
+                px, py = st.session_state.history.pop()
+                st.session_state.x -= px
+                st.session_state.y -= py
+                st.rerun()
