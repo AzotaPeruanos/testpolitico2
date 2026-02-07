@@ -1,89 +1,78 @@
 import streamlit as st
 import base64
 
-# 1. Configuración de página y Estética Avanzada (CSS Maestro)
-st.set_page_config(page_title="Test de Brújula Política", layout="centered")
+# 1. Configuración de página y Estética Avanzada
+st.set_page_config(page_title="Brújula Política v3.0", layout="centered")
 
 st.markdown("""
     <style>
-    /* Fondo general */
     .stApp { background-color: #e3f2fd; }
     
-    /* Centrado total del contenedor de preguntas y botones */
+    /* Centrado total de la App */
     .main .block-container {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        padding-top: 2rem;
     }
 
-    /* Forzar botones a ser idénticos, centrados y con ancho fijo */
+    /* Botones idénticos y elegantes */
     div.stButton > button {
         width: 100% !important;
-        max-width: 450px; /* Ancho fijo para todos */
-        display: block;
-        margin: 10px auto !important;
-        border-radius: 12px;
-        height: 3.8em;
+        max-width: 500px;
+        margin: 8px auto !important;
+        border-radius: 15px;
+        height: 4em;
         font-weight: bold;
-        font-size: 17px;
+        font-size: 16px;
         background-color: white;
         border: 2px solid #1565c0;
         color: #1565c0;
-        transition: 0.3s;
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.05);
     }
     
     div.stButton > button:hover {
-        background-color: #bbdefb;
+        background-color: #e1f5fe;
         border-color: #0d47a1;
+        transform: scale(1.01);
     }
 
-    /* Títulos y textos centrados */
-    h1, h2, h3, p {
-        text-align: center !important;
-        width: 100%;
-    }
-
-    /* Caja de Ideología: Azul más oscuro */
+    /* Caja de Ideología */
     .ideologia-box {
         background-color: #90caf9;
         color: #0d47a1;
-        padding: 25px;
-        border-radius: 15px;
+        padding: 30px;
+        border-radius: 20px;
         text-align: center;
-        font-weight: bold;
         border: 2px solid #1565c0;
-        margin: 20px auto;
+        margin-bottom: 20px;
         width: 100%;
-        max-width: 500px;
+        max-width: 600px;
     }
 
-    /* Contenedor del mapa (Más grande) */
+    /* Mapa de resultados */
     .map-wrapper {
         position: relative;
-        width: 450px; /* Tamaño aumentado */
+        width: 450px;
         height: 450px;
         margin: 20px auto;
-        border: 3px solid #1565c0;
+        border: 5px solid white;
         border-radius: 15px;
-        overflow: hidden;
+        box-shadow: 0px 10px 20px rgba(0,0,0,0.1);
         background-color: white;
     }
-    .chart-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+    .chart-img { width: 100%; height: 100%; border-radius: 10px; }
     .red-dot {
         position: absolute;
-        width: 18px; /* Punto un poco más grande */
-        height: 18px;
+        width: 20px;
+        height: 20px;
         background-color: #ff0000;
         border-radius: 50%;
-        border: 2px solid white;
+        border: 3px solid white;
         transform: translate(-50%, -50%);
         z-index: 100;
-        box-shadow: 0px 0px 8px rgba(0,0,0,0.6);
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -190,31 +179,44 @@ def responder(m):
     else: st.session_state.y += p
     st.session_state.idx += 1
 
-def get_ideology(x, y):
-    if x > 25 and y > 25: return "Fascismo / Autoritarismo Nacional"
-    if x > 25 and abs(y) <= 25: return "Neoliberalismo / Conservadurismo Libre"
-    if x > 25 and y < -25: return "Anarcocapitalismo"
-    if x < -25 and y > 25: return "Estalinismo / Socialismo de Estado"
-    if x < -25 and abs(y) <= 25: return "Socialismo Democrático"
-    if x < -25 and y < -25: return "Anarcocomunismo"
-    if abs(x) <= 25 and y > 25: return "Teocracia / Tradicionalismo"
-    if abs(x) <= 25 and y < -25: return "Libertarismo Civil"
-    return "Centrismo Político"
+def get_full_analysis(x, y):
+    if x > 30 and y > 30: 
+        return "Autoritarismo Nacional", "Priorizas el orden estatal y la jerarquía económica. Crees en una nación fuerte y un mercado regulado por el interés nacional."
+    if x > 30 and y < -30: 
+        return "Anarcocapitalismo", "Abogas por la libertad individual extrema y la eliminación del Estado en favor del mercado libre absoluto."
+    if x < -30 and y > 30: 
+        return "Socialismo de Estado", "Crees en el control estatal de los medios de producción y una fuerte autoridad para garantizar la igualdad social."
+    if x < -30 and y < -30: 
+        return "Anarcomunismo", "Buscas una sociedad sin clases ni Estado, basada en la cooperación voluntaria y la propiedad colectiva."
+    if abs(x) <= 20 and abs(y) <= 20: 
+        return "Centrismo Moderado", "Tus posiciones son equilibradas. Prefieres cambios graduales y soluciones pragmáticas que no se van a los extremos."
+    if x > 30: return "Derecha Conservadora", "Valoras las libertades de mercado y la tradición, con un Estado que protege la propiedad."
+    if x < -30: return "Socialdemocracia Progresista", "Apoyas un sistema redistributivo fuerte dentro de un marco democrático y libertades civiles."
+    if y > 30: return "Conservadurismo Social", "Crees que el Estado debe proteger los valores morales y la cohesión social tradicional."
+    if y < -30: return "Libertarismo Civil", "Tu prioridad es que el Estado no se meta en la vida privada de las personas, independientemente de la economía."
+    return "Tendencia Mixta", "Tus opiniones combinan elementos de varios cuadrantes de forma ecléctica."
 
-# --- RENDERIZADO ---
+# --- INTERFAZ ---
 if st.session_state.idx >= len(questions):
-    st.markdown("<h1>Tu Perfil Político Final</h1>", unsafe_allow_html=True)
-    ideologia = get_ideology(st.session_state.x, st.session_state.y)
-    st.markdown(f"<div class='ideologia-box'><h2>{ideologia}</h2></div>", unsafe_allow_html=True)
+    st.markdown("<h1>📊 Tu Perfil Político</h1>", unsafe_allow_html=True)
+    
+    nombre_id, desc_id = get_full_analysis(st.session_state.x, st.session_state.y)
+    
+    st.markdown(f"""
+        <div class='ideologia-box'>
+            <h2 style='margin:0;'>{nombre_id}</h2>
+            <hr style='border: 1px solid #1565c0;'>
+            <p style='font-size: 18px;'>{desc_id}</p>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # Cálculo visual del punto (Centro 50%, 50%)
-    left_p = 50 + (st.session_state.x * 0.25) 
-    top_p = 50 - (st.session_state.y * 0.25)
+    # Cálculo visual (Rango máximo aprox +/- 170. Factor 0.25 para el mapa de 450px)
+    left_p = 50 + (st.session_state.x * 0.28) 
+    top_p = 50 - (st.session_state.y * 0.28)
 
     def get_base64_img(file):
         with open(file, "rb") as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
+            return base64.b64encode(f.read()).decode()
 
     try:
         bin_str = get_base64_img("chart.png")
@@ -225,16 +227,19 @@ if st.session_state.idx >= len(questions):
             </div>
         """, unsafe_allow_html=True)
     except:
-        st.error("Error al cargar chart.png")
+        st.error("Error al cargar la imagen. Sube chart.png a GitHub.")
 
-    if st.button("🔄 Reiniciar el Test"):
+    st.write("")
+    if st.button("🔄 Volver a realizar el test"):
         st.session_state.idx, st.session_state.x, st.session_state.y = 0, 0.0, 0.0
         st.session_state.history = []
         st.rerun()
 
 else:
+    st.markdown(f"<p style='color: #546e7a;'>Pregunta {st.session_state.idx + 1} de {len(questions)}</p>", unsafe_allow_html=True)
     st.progress(st.session_state.idx / len(questions))
-    st.markdown(f"<h3>{questions[st.session_state.idx]['t']}</h3>", unsafe_allow_html=True)
+    
+    st.markdown(f"<h2 style='color: #1565c0; padding: 20px;'>{questions[st.session_state.idx]['t']}</h2>", unsafe_allow_html=True)
     
     # Botones centrados
     if st.button("✨ Totalmente de acuerdo"): responder(2); st.rerun()
@@ -244,7 +249,8 @@ else:
     if st.button("🔥 Totalmente en desacuerdo"): responder(-2); st.rerun()
     
     if st.session_state.idx > 0:
-        if st.button("⬅️ Volver atrás"):
+        st.write("")
+        if st.button("⬅️ Pregunta anterior"):
             st.session_state.idx -= 1
             px, py = st.session_state.history.pop()
             st.session_state.x -= px; st.session_state.y -= py
