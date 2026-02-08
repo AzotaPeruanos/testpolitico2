@@ -1,7 +1,7 @@
 import streamlit as st
 import base64
 
-# 1. ESTÉTICA PROFESIONAL: FONDO AZUL CLARO Y TARJETAS DE RESULTADOS
+# 1. ESTÉTICA DEFINITIVA: CENTRADO FORZADO Y PREGUNTAS GRANDES
 st.set_page_config(page_title="Brújula Política Estudiantil", layout="centered")
 
 st.markdown("""
@@ -9,54 +9,70 @@ st.markdown("""
     /* Fondo Azul Claro */
     .stApp { background-color: #E3F2FD; color: #1565C0; }
     
-    /* Centrado de preguntas */
+    /* PREGUNTAS MÁS GRANDES */
     .question-text {
         text-align: center;
-        font-size: 24px;
-        font-weight: 700;
+        font-size: 32px; /* Aumentado */
+        font-weight: 800;
         color: #0D47A1;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
         padding: 20px;
+        line-height: 1.2;
     }
 
-    /* BURBUJAS DE RESPUESTA CENTRADAS Y COLOREADAS */
-    div.stButton > button {
-        display: block !important;
-        width: 100% !important;
-        max-width: 500px;
-        margin: 10px auto !important;
-        border-radius: 50px;
-        height: 3.5em;
-        font-weight: bold;
-        font-size: 18px;
-        border: none;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: 0.3s;
-    }
-
-    /* Colores por posición de botón */
-    div.stButton:nth-of-type(1) > button { background: linear-gradient(90deg, #2E7D32, #4CAF50) !important; color: white !important; }
-    div.stButton:nth-of-type(2) > button { background: linear-gradient(90deg, #81C784, #A5D6A7) !important; color: #1B5E20 !important; }
-    div.stButton:nth-of-type(3) > button { background: #FFFFFF !important; color: #1565C0 !important; border: 1px solid #BBDEFB !important; }
-    div.stButton:nth-of-type(4) > button { background: linear-gradient(90deg, #E57373, #EF9A9A) !important; color: #B71C1C !important; }
-    div.stButton:nth-of-type(5) > button { background: linear-gradient(90deg, #C62828, #D32F2F) !important; color: white !important; }
-
-    div.stButton > button:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-
-    /* TARJETA DE RESULTADO FINAL */
-    .result-card {
-        background-color: white;
-        padding: 40px;
-        border-radius: 30px;
+    /* CONTENEDOR PARA CENTRAR BOTONES Y DARLES MISMA LONGITUD */
+    div.stButton {
         text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        margin-bottom: 30px;
-        border: 4px solid #1976D2;
     }
-    .result-title { font-size: 42px; font-weight: 900; color: #0D47A1; margin-bottom: 10px; }
-    .result-desc { font-size: 20px; color: #455A64; line-height: 1.4; }
+    
+    div.stButton > button {
+        width: 100% !important;
+        max-width: 550px !important; /* Longitud fija */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        border-radius: 50px !important;
+        height: 4em !important;
+        font-weight: bold !important;
+        font-size: 20px !important;
+        border: none !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+        transition: 0.3s !important;
+        display: block !important;
+    }
 
-    /* MAPA */
+    /* COLORES ACORDE A LA RESPUESTA */
+    /* 1. Totalmente de acuerdo - Verde Oscuro */
+    div.stButton:nth-of-type(2) > button { background: #1B5E20 !important; color: white !important; }
+    /* 2. De acuerdo - Verde Claro */
+    div.stButton:nth-of-type(3) > button { background: #81C784 !important; color: #052b08 !important; }
+    /* 3. Neutral - Blanco */
+    div.stButton:nth-of-type(4) > button { background: #FFFFFF !important; color: #1565C0 !important; border: 1px solid #BBDEFB !important; }
+    /* 4. En desacuerdo - Rojo Claro */
+    div.stButton:nth-of-type(5) > button { background: #EF9A9A !important; color: #7f0000 !important; }
+    /* 5. Totalmente en desacuerdo - Rojo Oscuro */
+    div.stButton:nth-of-type(6) > button { background: #B71C1C !important; color: white !important; }
+
+    /* Botón Volver (distinto para no confundir) */
+    div.stButton:last-of-type > button { 
+        background: #546E7A !important; 
+        color: white !important; 
+        margin-top: 30px !important;
+        max-width: 300px !important;
+        font-size: 14px !important;
+        height: 3em !important;
+    }
+
+    div.stButton > button:hover { transform: scale(1.02); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+
+    /* RESULTADOS */
+    .result-card {
+        background-color: white; padding: 40px; border-radius: 30px;
+        text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 30px; border: 4px solid #1976D2;
+    }
+    .result-title { font-size: 45px; font-weight: 900; color: #0D47A1; }
+    .result-desc { font-size: 22px; color: #455A64; }
+
     .map-container {
         position: relative; width: 450px; height: 450px; 
         margin: 20px auto; border: 8px solid white; border-radius: 20px;
@@ -64,20 +80,15 @@ st.markdown("""
     }
     .dot { position: absolute; border-radius: 50%; border: 1px solid white; transform: translate(-50%, -50%); }
     .user-dot {
-        width: 35px; height: 35px; background-color: #FF1744; z-index: 100;
+        width: 38px; height: 38px; background-color: #FF1744; z-index: 100;
         box-shadow: 0 0 20px #FF1744; border: 4px solid white; color: white;
-        display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold;
+        display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;
     }
-    .leader-dot { width: 16px; height: 16px; z-index: 50; }
-
-    /* LEYENDA */
     .legend-box {
         background: white; padding: 15px; border-radius: 15px;
         display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;
         margin-top: 20px; border: 1px solid #BBDEFB;
     }
-    .legend-item { display: flex; align-items: center; font-size: 14px; font-weight: bold; }
-    .color-circle { width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -86,7 +97,7 @@ if 'idx' not in st.session_state:
     st.session_state.update({'idx': 0, 'x': 0.0, 'y': 0.0, 'hist': []})
 
 def responder(m):
-    radical = (m ** 3) * 5.0 # Radicalización extrema
+    radical = (m ** 3) * 5.5 
     q = questions[st.session_state.idx]
     val = radical * q["v"]
     if q["a"] == "x": st.session_state.x += val
@@ -105,7 +116,7 @@ LEADERS = [
     {"n": "Castro", "x": -165, "y": 140, "c": "#2E7D32"}
 ]
 
-# 3. 85 PREGUNTAS SIMPLIFICADAS PARA ALUMNOS
+# 3. 85 PREGUNTAS (Simplificadas)
 questions = [
     {"t": "Cualquier persona debería poder abrir un negocio sin que el gobierno le ponga muchas reglas.", "a": "x", "v": 1},
     {"t": "Los hospitales deberían ser siempre gratis y pagados con nuestros impuestos.", "a": "x", "v": -1},
@@ -172,10 +183,10 @@ questions = [
     {"t": "El gobierno debe controlar la Inteligencia Artificial antes de que sea peligrosa.", "a": "y", "v": 1},
     {"t": "La energía nuclear es la mejor forma de no contaminar el aire.", "a": "x", "v": 1},
     {"t": "Los animales deberían tener los mismos derechos legales que las personas.", "a": "y", "v": -1},
-    {"t": "Llegar al espacio deberían hacerlo empresas como las de Elon Musk, no el gobierno.", "a": "x", "v": 1},
+    {"t": "Llegar al espacio deberían hacerlo empresas privadas, no el gobierno.", "a": "x", "v": 1},
     {"t": "Dar dinero público para el cine o el teatro es tirar el dinero.", "a": "x", "v": 1},
-    {"t": "El mundo está tan conectado que estamos perdiendo nuestras costumbres de siempre.", "a": "y", "v": 1},
-    {"t": "El capitalismo (comprar y vender) está rompiendo el planeta poco a poco.", "a": "x", "v": -1},
+    {"t": "El mundo está tan conectado que estamos perdiendo nuestras costumbres.", "a": "y", "v": 1},
+    {"t": "El capitalismo está rompiendo el planeta poco a poco.", "a": "x", "v": -1},
     {"t": "Deberíamos votar todas las leyes por internet desde casa.", "a": "y", "v": -1},
     {"t": "La cárcel tiene que ser para que el malo sufra, no para que aprenda.", "a": "y", "v": 1},
     {"t": "Si eres rico es porque te has esforzado más que el que es pobre.", "a": "x", "v": 1},
@@ -189,20 +200,20 @@ questions = [
     {"t": "Las huelgas solo sirven para que el país pierda dinero y tiempo.", "a": "x", "v": 1},
     {"t": "La tecnología nos está volviendo tontos y menos humanos.", "a": "y", "v": 1},
     {"t": "Los multimillonarios deberían dar casi todo su dinero al estado.", "a": "x", "v": -1},
-    {"t": "Habría que prohibir los coches de gasolina muy pronto para no contaminar.", "a": "x", "v": -1},
+    {"t": "Habría que prohibir los coches de gasolina muy pronto.", "a": "x", "v": -1},
     {"t": "Sin alguien que mande y ponga orden, la gente se portaría fatal.", "a": "y", "v": 1},
-    {"t": "Cualquier tiempo pasado fue mucho mejor que el mundo de ahora.", "a": "y", "v": 1}
+    {"t": "Cualquier tiempo pasado fue mucho mejor que el de ahora.", "a": "y", "v": 1}
 ]
 
 # --- LÓGICA DE PANTALLAS ---
 if st.session_state.idx >= len(questions):
     x, y = st.session_state.x, st.session_state.y
     
-    if x > 100 and y > 100: n, d = "DERECHA AUTORITARIA", "Crees en un país con mucha ley y orden, donde el mercado es libre pero la tradición y la autoridad mandan."
-    elif x < -100 and y > 100: n, d = "IZQUIERDA AUTORITARIA", "Crees que el gobierno debe controlar la economía por completo para que todos sean iguales, usando la fuerza si hace falta."
-    elif x > 100 and y < -100: n, d = "LIBERALISMO RADICAL", "Para ti, la libertad individual es lo primero. El gobierno no debería decirte ni cómo gastar tu dinero ni cómo vivir."
-    elif x < -100 and y < -100: n, d = "IZQUIERDA LIBERTARIA", "Buscas un mundo sin jefes ni gobiernos, donde la gente se ayude de forma voluntaria y todo sea de todos."
-    else: n, d = "CENTRO POLÍTICO", "Eres una persona equilibrada. No te gustan los extremos y prefieres soluciones moderadas para los problemas."
+    if x > 100 and y > 100: n, d = "DERECHA AUTORITARIA", "Crees en un país con mucha ley y orden, donde el mercado es libre pero la autoridad manda."
+    elif x < -100 and y > 100: n, d = "IZQUIERDA AUTORITARIA", "Crees que el gobierno debe controlar la economía para que todos sean iguales."
+    elif x > 100 and y < -100: n, d = "LIBERALISMO RADICAL", "Para ti, la libertad individual es lo primero. El gobierno no debe meterse en nada."
+    elif x < -100 and y < -100: n, d = "IZQUIERDA LIBERTARIA", "Buscas un mundo sin jefes ni gobiernos, donde la gente se ayude voluntariamente."
+    else: n, d = "CENTRO POLÍTICO", "Eres una persona equilibrada. Prefieres soluciones moderadas para los problemas."
 
     st.markdown(f"""
         <div class="result-card">
@@ -211,7 +222,6 @@ if st.session_state.idx >= len(questions):
         </div>
     """, unsafe_allow_html=True)
 
-    # Mapa
     def get_b64(f):
         try:
             with open(f, "rb") as b: return base64.b64encode(b.read()).decode()
@@ -224,7 +234,7 @@ if st.session_state.idx >= len(questions):
         l_html += f'<div class="dot leader-dot" style="left:{lx}%; top:{ly}%; background:{l["c"]};"></div>'
 
     ux = 50 + (x * 0.23); uy = 50 - (y * 0.23)
-    ux, uy = max(5, min(95, ux)), max(5, min(95, uy)) # Limitar para no salir del cuadro
+    ux, uy = max(5, min(95, ux)), max(5, min(95, uy))
     
     st.markdown(f"""
         <div class="map-container">
@@ -234,14 +244,13 @@ if st.session_state.idx >= len(questions):
         </div>
     """, unsafe_allow_html=True)
 
-    # Leyenda de Líderes
-    l_items = "".join([f'<div class="legend-item"><div class="color-circle" style="background:{l["c"]};"></div>{l["n"]}</div>' for l in LEADERS])
+    l_items = "".join([f'<div style="display:flex; align-items:center; font-size:14px; font-weight:bold;"><div style="width:12px; height:12px; border-radius:50%; background:{l["c"]}; margin-right:5px;"></div>{l["n"]}</div>' for l in LEADERS])
     st.markdown(f'<div class="legend-box">{l_items}</div>', unsafe_allow_html=True)
 
-    if st.button("📄 GUARDAR RESULTADOS (PDF)"):
+    if st.button("📄 GUARDAR PDF"):
         st.components.v1.html("<script>window.print();</script>", height=0)
     
-    if st.button("🔄 REPETIR EL TEST"):
+    if st.button("🔄 REPETIR"):
         st.session_state.update({'idx':0, 'x':0, 'y':0, 'hist':[]})
         st.rerun()
 
@@ -249,14 +258,16 @@ else:
     st.progress(st.session_state.idx / len(questions))
     st.markdown(f'<div class="question-text">{questions[st.session_state.idx]["t"]}</div>', unsafe_allow_html=True)
     
-    if st.button("Totalmente de acuerdo"): responder(2); st.rerun()
-    if st.button("De acuerdo"): responder(1); st.rerun()
-    if st.button("No estoy seguro / Neutral"): responder(0); st.rerun()
-    if st.button("En desacuerdo"): responder(-1); st.rerun()
-    if st.button("Totalmente en desacuerdo"): responder(-2); st.rerun()
+    # BOTONES EN BLOQUE PARA FORZAR EL CENTRADO CSS
+    st.button("Totalmente de acuerdo", on_click=responder, args=(2,))
+    st.button("De acuerdo", on_click=responder, args=(1,))
+    st.button("No estoy seguro / Neutral", on_click=responder, args=(0,))
+    st.button("En desacuerdo", on_click=responder, args=(-1,))
+    st.button("Totalmente en desacuerdo", on_click=responder, args=(-2,))
 
     if st.session_state.idx > 0:
         if st.button("⬅️ VOLVER A LA PREGUNTA ANTERIOR"):
             px, py = st.session_state.hist.pop()
             st.session_state.x -= px; st.session_state.y -= py
-            st.session_state.idx -= 1; st.rerun()
+            st.session_state.idx -= 1
+            st.rerun()
