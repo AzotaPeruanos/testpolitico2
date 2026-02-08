@@ -4,31 +4,30 @@ import streamlit.components.v1 as components
 # 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(page_title="Compás Político", layout="centered")
 
-# 2. ESTILOS CSS (Centrado absoluto, Colores originales y Simetría)
+# 2. ESTILOS CSS (Centrado Total, Botones Redondeados y Colores Originales)
 st.markdown("""
     <style>
     /* Fondo azul claro original */
     .stApp { background-color: #EBF8FF; }
     
-    /* Contenedor principal: Centra todo el contenido vertical y horizontalmente */
-    .block-container {
+    /* Contenedor principal: Centra todo el contenido */
+    .main .block-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        text-align: center;
+        text-align: center; max-width: 800px;
     }
 
     .main-title { font-size: 45px; font-weight: 800; color: #1E3A8A; margin-bottom: 20px; width: 100%; text-align: center; }
     
     /* Caja de pregunta centrada */
     .question-container { 
-        margin: 20px auto; width: 100%; max-width: 700px;
-        min-height: 80px; display: flex; align-items: center; justify-content: center;
-        text-align: center;
+        margin: 20px auto; width: 100%; max-width: 650px;
+        min-height: 100px; display: flex; align-items: center; justify-content: center;
     }
     .question-text { font-size: 26px !important; font-weight: 700; color: #1E3A8A; line-height: 1.3; text-align: center; width: 100%; }
     
     /* Nota de aviso 1ª pregunta */
     .warning-box { 
-        background-color: #FFFBEB; border: 1px solid #F59E0B; border-radius: 12px;
+        background-color: #FFFBEB; border: 1px solid #F59E0B; border-radius: 15px;
         padding: 20px; margin: 10px auto 25px auto; max-width: 600px;
         color: #92400E; text-align: center; font-weight: 600; font-size: 16px;
     }
@@ -36,45 +35,41 @@ st.markdown("""
     /* Burbuja de Ideología Final Centrada */
     .result-bubble {
         background-color: white; border-radius: 25px; padding: 40px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 2px solid #BFDBFE;
-        text-align: center; margin: 20px auto; width: 100%; max-width: 650px;
-        display: flex; flex-direction: column; align-items: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid #BFDBFE;
+        text-align: center; margin: 20px auto; width: 100%; max-width: 600px;
     }
-    .ideology-title { font-size: 36px !important; font-weight: 900; color: #2563EB; text-transform: uppercase; margin: 0; text-align: center; }
-    .ideology-desc { font-size: 18px; color: #475569; margin-top: 15px; line-height: 1.5; text-align: center; }
+    .ideology-title { font-size: 36px !important; font-weight: 900; color: #2563EB; text-transform: uppercase; margin: 0; }
+    .ideology-desc { font-size: 18px; color: #475569; margin-top: 15px; line-height: 1.5; }
 
-    /* BOTONES: Azules, misma longitud, centrados y con línea divisoria */
+    /* BOTONES: Azules, bordes redondeados (no afilados), misma longitud y centrados */
     div.stButton > button {
         width: 100% !important; 
         max-width: 600px !important; 
-        height: 55px !important;
-        border-radius: 0px !important; 
+        height: 58px !important;
+        border-radius: 15px !important; /* Bordes redondeados suaves */
         font-size: 18px !important;
-        background-color: #DBEAFE !important; /* Azul claro original */
+        background-color: #DBEAFE !important; 
         color: #1E40AF !important;
-        border: none !important;
-        border-bottom: 1px dotted #93C5FD !important; /* Divisor ligero */
-        margin: 0 auto !important;
+        border: 1px solid #BFDBFE !important;
+        border-bottom: 3px solid #BFDBFE !important; /* Relieve suave */
+        margin: 8px auto !important;
         display: block !important;
         font-weight: 600;
-        transition: 0.3s;
+        transition: 0.2s;
     }
     div.stButton > button:hover { 
         background-color: #BFDBFE !important; 
         transform: scale(1.01); 
     }
 
-    /* Botones de acción final (PDF y Volver) */
-    .action-area { width: 100%; max-width: 600px; margin: 20px auto; display: flex; flex-direction: column; align-items: center; }
-    .action-area div.stButton > button { 
-        border-radius: 10px !important; border: 1px solid #BFDBFE !important; margin-top: 10px !important; 
-    }
+    /* Área de botones de acción (PDF, Volver, Repetir) */
+    .action-area { width: 100%; max-width: 600px; margin: 20px auto; }
     
-    /* Centrado de barra de progreso */
+    /* Barra de progreso */
     .stProgress { max-width: 600px; margin: 0 auto; }
     
-    /* Centrado del iframe del gráfico */
-    iframe { display: block; margin: 0 auto; border-radius: 15px; }
+    /* Gráfico iframe */
+    iframe { display: block; margin: 0 auto; border-radius: 15px; background: white; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -214,7 +209,7 @@ if st.session_state.idx >= len(questions):
     st.markdown('<div class="main-title">Compás Político</div>', unsafe_allow_html=True)
     x, y = st.session_state.x, st.session_state.y
 
-    # Lógica de Ideologías (30 posibles)
+    # Lógica de Ideologías
     if y > 6:
         if x < -6: id_nom, desc = "Marxismo-Leninismo", "Abolición del capitalismo mediante un Estado centralizado y poderoso."
         elif x > 6: id_nom, desc = "Fascismo / Nacionalismo", "Estado totalitario con economía dirigida y enfoque nacionalista."
@@ -266,13 +261,13 @@ if st.session_state.idx >= len(questions):
         <div style="position:absolute; width:50%; height:50%; bottom:0; right:0; background:rgba(234,179,8,0.15);"></div>
         <div style="position:absolute; width:100%; height:2px; background:#1e293b; top:50%;"></div>
         <div style="position:absolute; width:2px; height:100%; background:#1e293b; left:50%;"></div>
-        <div style="position:absolute; top:8px; width:100%; text-align:center; font-weight:900; font-size:14px;">AUTORITARIO</div>
-        <div style="position:absolute; bottom:8px; width:100%; text-align:center; font-weight:900; font-size:14px;">LIBERTARIO</div>
-        <div style="position:absolute; top:48%; left:8px; font-weight:900; font-size:14px;">IZQUIERDA</div>
-        <div style="position:absolute; top:48%; right:8px; font-weight:900; font-size:14px;">DERECHA</div>
+        <div style="position:absolute; top:8px; width:100%; text-align:center; font-weight:900; font-size:14px; color:#1e293b;">AUTORITARIO</div>
+        <div style="position:absolute; bottom:8px; width:100%; text-align:center; font-weight:900; font-size:14px; color:#1e293b;">LIBERTARIO</div>
+        <div style="position:absolute; top:48%; left:8px; font-weight:900; font-size:14px; color:#1e293b;">IZQUIERDA</div>
+        <div style="position:absolute; top:48%; right:8px; font-weight:900; font-size:14px; color:#1e293b;">DERECHA</div>
         {leaders_html}
-        <div style="position:absolute; width:14px; height:14px; background:red; border:2px solid white; border-radius:50%; left:{user_x}%; top:{user_y}%; transform:translate(-50%,-50%); z-index:10; box-shadow:0 0 10px red;"></div>
-        <div style="position:absolute; color:red; font-weight:900; font-size:16px; left:{user_x}%; top:{user_y}%; transform:translate(-50%, 12px); z-index:11; text-shadow:1px 1px white;">TÚ</div>
+        <div style="position:absolute; width:16px; height:16px; background:red; border:3px solid white; border-radius:50%; left:{user_x}%; top:{user_y}%; transform:translate(-50%,-50%); z-index:10; box-shadow:0 0 10px red;"></div>
+        <div style="position:absolute; color:red; font-weight:900; font-size:16px; left:{user_x}%; top:{user_y}%; transform:translate(-50%, 14px); z-index:11; font-family:sans-serif; text-shadow:1px 1px white;">TÚ</div>
     </div>
     """
     components.html(compass_code, height=640)
@@ -290,7 +285,7 @@ if st.session_state.idx >= len(questions):
 else:
     st.markdown('<div class="main-title">Compás Político</div>', unsafe_allow_html=True)
     
-    # Mensaje de la 1ª pregunta recuperado
+    # Mensaje de la 1ª pregunta
     if st.session_state.idx == 0:
         st.markdown('<div class="warning-box">⚠️ Si no sabes lo que significa la pregunta, pon <b>Neutral / No lo sé</b>.</div>', unsafe_allow_html=True)
     
@@ -300,14 +295,14 @@ else:
     # Pregunta centrada
     st.markdown(f'<div class="question-container"><span class="question-text">{questions[st.session_state.idx]["t"]}</span></div>', unsafe_allow_html=True)
     
-    # Respuestas: Azules, centradas y con misma longitud
+    # Respuestas: Azules, centradas y con bordes suaves
     st.button("✅ Totalmente de acuerdo", on_click=responder, args=(2,))
     st.button("👍 De acuerdo", on_click=responder, args=(1,))
     st.button("😐 Neutral / No lo sé", on_click=responder, args=(0,))
     st.button("👎 En desacuerdo", on_click=responder, args=(-1,))
     st.button("❌ Totalmente en desacuerdo", on_click=responder, args=(-2,))
 
-    # Botón Volver centrado
+    # Botón Volver centrado y redondeado
     if st.session_state.idx > 0:
         st.markdown('<div class="action-area">', unsafe_allow_html=True)
         if st.button("⬅️ VOLVER A LA PREGUNTA ANTERIOR"):
