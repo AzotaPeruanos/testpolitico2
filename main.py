@@ -5,33 +5,63 @@ import math
 # 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(page_title="Compás Político", layout="centered")
 
-# 2. ESTILOS CSS
+# 2. ESTILOS CSS (Mejorados para impresión y espaciado)
 st.markdown("""
     <style>
+    /* Fondo y contenedores */
     .stApp { background-color: #E0F2FE; }
-    .main .block-container { max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+    .main .block-container { max-width: 900px; padding-top: 2rem; }
     
-    .main-title { font-size: 55px; font-weight: 950; color: #1E3A8A; text-align: center; width: 100%; margin-bottom: 10px; }
-    .welcome-text { font-size: 20px; color: #1E40AF; text-align: center; margin-bottom: 30px; font-weight: 500; }
-    .warning-box { background-color: #FFFFFF; border: 2px solid #3B82F6; border-radius: 15px; padding: 20px; text-align: center; color: #1E40AF; font-weight: 700; font-size: 18px; margin-bottom: 25px; width: 100%; }
+    /* Títulos y Bienvenida */
+    .main-title { font-size: 50px; font-weight: 900; color: #1E3A8A; text-align: center; margin-bottom: 5px; }
+    .welcome-text { font-size: 19px; color: #1E40AF; text-align: center; margin-bottom: 20px; font-weight: 500; }
+    .warning-box { background-color: #FFFFFF; border: 2px solid #3B82F6; border-radius: 15px; padding: 20px; text-align: center; color: #1E40AF; font-weight: 700; margin-bottom: 30px; }
     
-    .q-counter { font-size: 18px; color: #1E40AF; font-weight: 800; margin-bottom: -35px; text-transform: uppercase; }
+    /* Separación del contador y la barra */
+    .q-counter { 
+        font-size: 18px; 
+        color: #1E40AF; 
+        font-weight: 800; 
+        margin-bottom: 15px; /* Espacio extra aquí */
+        text-transform: uppercase; 
+        display: block;
+    }
     
-    .question-container { margin: 45px auto; width: 100%; text-align: center; min-height: 130px; display: flex; align-items: center; justify-content: center; }
-    .question-text { font-size: 32px !important; font-weight: 800; color: #1E3A8A; line-height: 1.2; }
+    /* Pregunta */
+    .question-container { margin: 40px 0; text-align: center; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+    .question-text { font-size: 30px !important; font-weight: 800; color: #1E3A8A; line-height: 1.2; }
     
-    .result-bubble { background-color: white; border-radius: 35px; padding: 40px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); border: 3px solid #60A5FA; text-align: center; margin: 20px auto; width: 100%; }
-    .ideology-title { font-size: 38px !important; font-weight: 950; color: #2563EB; margin: 0; text-transform: uppercase; }
-    .ideology-desc { font-size: 18px !important; color: #334155; margin-top: 20px; line-height: 1.6; text-align: justify; font-weight: 400; }
-
-    div.stButton > button { width: 100% !important; max-width: 650px !important; height: 58px !important; border-radius: 15px !important; font-size: 20px !important; background-color: #FFFFFF !important; color: #1E40AF !important; border: 2px solid #BFDBFE !important; border-bottom: 5px solid #BFDBFE !important; margin: 10px auto !important; display: block !important; font-weight: 700; transition: 0.2s; }
+    /* Botones de respuesta */
+    div.stButton > button { 
+        width: 100% !important; 
+        height: 55px !important; 
+        border-radius: 12px !important; 
+        font-size: 18px !important; 
+        background-color: #FFFFFF !important; 
+        color: #1E40AF !important; 
+        border: 2px solid #BFDBFE !important; 
+        border-bottom: 4px solid #BFDBFE !important; 
+        margin-bottom: 10px !important; 
+        font-weight: 700; 
+    }
     div.stButton > button:hover { background-color: #F0F9FF !important; border-color: #3B82F6 !important; }
+
+    /* Resultados e Impresión */
+    @media print {
+        .stButton, .q-counter, .stProgress, .welcome-text { display: none !important; }
+        .stApp { background-color: white !important; }
+        .result-bubble { border: 2px solid black !important; box-shadow: none !important; }
+    }
     
-    .leader-match { background: white; border: 1px solid #BFDBFE; border-radius: 12px; padding: 12px; margin: 6px 0; display: flex; justify-content: space-between; color: #1E293B; font-weight: 700; font-size: 17px; width: 100%; max-width: 600px; }
+    .result-bubble { background-color: white; border-radius: 25px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 3px solid #60A5FA; text-align: center; margin-bottom: 20px; }
+    .ideology-title { font-size: 35px !important; font-weight: 900; color: #2563EB; text-transform: uppercase; margin: 0; }
+    .ideology-desc { font-size: 17px !important; color: #334155; margin-top: 15px; text-align: justify; }
+    
+    .leader-match { background: white; border: 1px solid #BFDBFE; border-radius: 10px; padding: 10px 20px; margin: 5px 0; display: flex; justify-content: space-between; font-weight: 700; color: #1E293B; }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. BASE DE DATOS LÍDERES
+# 3. DATOS (Líderes, Preguntas e Ideologías)
 LEADERS = [
     {"n": "Stalin", "x": -9, "y": 9, "c": "#C53030"}, {"n": "Hitler", "x": 8, "y": 9.5, "c": "#2D3748"},
     {"n": "Mao", "x": -9.5, "y": 8.5, "c": "#E53E3E"}, {"n": "Gandhi", "x": -6.5, "y": -7.5, "c": "#48BB78"},
@@ -58,10 +88,8 @@ LEADERS = [
     {"n": "Mujica", "x": -7, "y": -4, "c": "#48BB78"}
 ]
 
-# 4. PREGUNTAS (85 EN TOTAL)
-# Se asume que la lista completa de 85 preguntas está integrada aquí...
 questions = [
-    # ECONÓMICAS
+    # ECONÓMICAS (Factor 10/43)
     {"t": "El gobierno no debería decir a las empresas cuánto pagar a sus empleados.", "a": "x", "v": 1},
     {"t": "La sanidad debería ser gratis y pagada con los impuestos de todos.", "a": "x", "v": -1},
     {"t": "El Estado debería ser el dueño de las empresas de luz y agua.", "a": "x", "v": -1},
@@ -105,8 +133,7 @@ questions = [
     {"t": "Vender órganos debería ser legal si hay acuerdo entre personas.", "a": "x", "v": 1},
     {"t": "El Estado gasta demasiado en políticos y burocracia.", "a": "x", "v": 1},
     {"t": "Tener mucha riqueza acumulada debería ser ilegal.", "a": "x", "v": -1},
-    
-    # SOCIALES
+    # SOCIALES (Factor 10/42)
     {"t": "La disciplina y la obediencia son lo más importante en la educación.", "a": "y", "v": 1},
     {"t": "La libertad de expresión debe ser total, aunque alguien se ofenda.", "a": "y", "v": -1},
     {"t": "Hace falta mucha más policía en las calles.", "a": "y", "v": 1},
@@ -151,7 +178,39 @@ questions = [
     {"t": "Un buen ciudadano siempre obedece la ley sin preguntar.", "a": "y", "v": 1}
 ]
 
-# 5. LÓGICA DE ESTADO
+def get_long_desc(x, y):
+    if y > 6:
+        if x < -6: return "Marxismo-Leninismo", "Buscas una sociedad donde el Estado controle todo para eliminar las diferencias de dinero. Crees en la disciplina férrea."
+        if -6 <= x < -2: return "Nacionalbolchevismo", "Estado fuerte en lo económico y nacionalismo extremo en lo social."
+        if -2 <= x <= 2: return "Totalitarismo", "El Estado es todo, fuera del Estado nada."
+        if 2 < x <= 6: return "Fascismo Clásico", "Unidad nacional, jerarquía y un Estado corporativo fuerte."
+        return "Derecha Radical Autoritaria", "Tradición, orden y mercado libre pero servil a la nación."
+    elif 2 < y <= 6:
+        if x < -6: return "Socialismo de Estado", "Gestión pública total para la igualdad social con autoridad."
+        if -6 <= x < -2: return "Populismo de Izquierda", "Lucha contra las élites con un Estado protector."
+        if -2 <= x <= 2: return "Estatismo", "Capitalismo vigilado y regulado por un gobierno fuerte."
+        if 2 < x <= 6: return "Conservadurismo", "Tradiciones, libre mercado y orden institucional."
+        return "Derecha Autoritaria", "Leyes muy estrictas y economía de libre mercado absoluta."
+    elif -2 <= y <= 2:
+        if x < -6: return "Socialismo Democrático", "Igualdad económica lograda a través de la democracia."
+        if -6 <= x < -2: return "Socialdemocracia", "El modelo de bienestar: mercado con muchos servicios públicos."
+        if -2 <= x <= 2: return "Centrismo", "Equilibrio entre libertad y protección social."
+        if 2 < x <= 6: return "Liberalismo Moderno", "Libertades individuales y economía dinámica."
+        return "Liberalismo Clásico", "Estado mínimo centrado en proteger la propiedad y la libertad."
+    elif -6 < y <= -2:
+        if x < -6: return "Anarcosindicalismo", "Sociedad organizada por trabajadores sin políticos ni jefes."
+        if -6 <= x < -2: return "Socialismo Libertario", "Comunidades libres y solidarias sin autoridad central."
+        if -2 <= x <= 2: return "Libertarismo Progresista", "Libertad total en lo personal con justicia social básica."
+        if 2 < x <= 6: return "Minarquismo", "El Estado solo para policía y justicia, nada más."
+        return "Paleolibertarismo", "Anarcocapitalismo con valores culturales conservadores."
+    else:
+        if x < -6: return "Anarcocomunismo", "Sin Estado, sin dinero y sin clases sociales."
+        if -6 <= x < -2: return "Mutualismo", "Mercado libre basado en la cooperación y el intercambio justo."
+        if -2 <= x <= 2: return "Anarquismo Individualista", "Autonomía total del individuo frente a cualquier grupo."
+        if 2 < x <= 6: return "Voluntarismo", "Todas las interacciones humanas deben ser voluntarias."
+        return "Anarcocapitalismo", "Privatización total de la sociedad y soberanía individual."
+
+# 4. LÓGICA DE NAVEGACIÓN
 if 'idx' not in st.session_state:
     st.session_state.update({'idx': 0, 'x': 0.0, 'y': 0.0, 'hist': []})
 
@@ -164,77 +223,45 @@ def responder(puntos):
     st.session_state.hist.append((val if q["a"]=="x" else 0, val if q["a"]=="y" else 0))
     st.session_state.idx += 1
 
-# 6. DESCRIPIÓN LARGA DE IDEOLOGÍAS
-def get_long_desc(x, y):
-    if y > 6:
-        if x < -6: return "Marxismo-Leninismo", "Buscas una sociedad donde el Estado controle todo para eliminar las diferencias de dinero. Crees que la disciplina y el control de la economía son la única forma de conseguir justicia para los trabajadores."
-        if -6 <= x < -2: return "Nacionalbolchevismo", "Una mezcla rara: quieres una economía donde el Estado mande mucho, pero a la vez eres super nacionalista. Valoras las tradiciones de tu país tanto como el reparto de la riqueza."
-        if -2 <= x <= 2: return "Totalitarismo", "Para ti, el Estado es lo más importante que existe. Crees que las libertades personales no importan tanto como la seguridad, el orden y cumplir los objetivos del gobierno."
-        if 2 < x <= 6: return "Fascismo Clásico", "Defiendes un Estado fuerte que una a toda la nación por encima de todo. Crees en la jerarquía, el orden militar y que todo el mundo debe trabajar unido por el orgullo nacional."
-        return "Derecha Radical Autoritaria", "Tu visión se basa en mantener las tradiciones y el orden a toda costa, usando un Estado muy fuerte y un mercado que sirva sobre todo a los intereses del país."
-    elif 2 < y <= 6:
-        if x < -6: return "Socialismo de Estado", "Crees que el gobierno debe gestionar casi todo para que nadie sea pobre, aunque eso signifique perder algo de libertad individual. El bienestar de todos va antes que los negocios privados."
-        if -6 <= x < -2: return "Populismo de Izquierda", "Te centras en luchar contra los de arriba (élites). Quieres un Estado que proteja a la gente común y reparta el dinero, usando el apoyo de la mayoría para cambiar las cosas."
-        if -2 <= x <= 2: return "Estatismo", "Crees que el capitalismo solo va bien si el gobierno lo vigila de cerca. Defiendes que la gente tenga sus cosas, pero quieres que el Estado intervenga para que haya orden y equilibrio social."
-        if 2 < x <= 6: return "Conservadurismo", "Valoras la estabilidad y las tradiciones. Crees en el libre mercado, pero piensas que el Estado debe estar ahí para proteger la moral y que las cosas no cambien de forma loca de un día para otro."
-        return "Derecha Autoritaria", "Te gusta que el mercado sea muy libre y el Estado no se meta en economía, pero exiges mucha policía, fronteras fuertes y leyes estrictas para que la sociedad funcione como debe."
-    elif -2 <= y <= 2:
-        if x < -6: return "Socialismo Democrático", "Buscas que la economía sea de todos pero de forma democrática, sin dictaduras. Crees que el sistema debe servir a las personas y no solo para que unos pocos se forren."
-        if -6 <= x < -2: return "Socialdemocracia", "Eres el defensor del 'Estado del Bienestar'. Te parece bien que haya empresas, pero quieres impuestos altos a los ricos para pagar sanidad, educación y ayudas para todo el mundo."
-        if -2 <= x <= 2: return "Centrismo", "Pasas de los extremos. Buscas soluciones prácticas: un poco de libertad económica para que el país crezca, pero con ayudas sociales y leyes que protejan a los ciudadanos."
-        if 2 < x <= 6: return "Liberalismo Moderno", "Tu prioridad es que cada uno haga lo que quiera. Defiendes un mercado con mucha chispa y libertades sociales a tope, dejando que el Estado solo se meta si algo va muy mal."
-        return "Liberalismo Clásico", "Crees que el mercado se arregla solo y que el Estado debería ser mini. Lo más importante para ti es proteger la vida, la libertad y que nadie te toque lo que es tuyo."
-    elif -6 < y <= -2:
-        if x < -6: return "Anarcosindicalismo", "Te gustaría una sociedad organizada por los propios trabajadores en sindicatos. No quieres jefes ni políticos, solo gente cooperando de forma libre y colectiva."
-        if -6 <= x < -2: return "Socialismo Libertario", "Quieres igualdad económica pero odias que alguien te mande. Crees en comunidades donde la gente comparta lo que tiene voluntariamente, sin necesidad de un gobierno central."
-        if -2 <= x <= 2: return "Libertarismo Progresista", "Quieres libertad total en temas sociales (aborto, drogas, derechos) pero aceptas que el Estado mantenga algunas ayudas básicas para que todo el mundo tenga una oportunidad al empezar."
-        if 2 < x <= 6: return "Minarquismo", "Crees que el Estado solo debe existir para la policía y la justicia. Cualquier otra cosa que haga el gobierno te parece que es meterse donde no le llaman y quitarte libertad."
-        return "Paleolibertarismo", "Quieres un mercado libre a tope y sin Estado, pero en lo personal te gustan los valores tradicionales. Crees que la libertad económica es la clave, pero que la moral es importante para que la sociedad no se hunda."
-    else:
-        if x < -6: return "Anarcocomunismo", "Sueñas con un mundo sin Estado, sin dinero y sin propiedad privada. Crees que todo debería ser de todos y que cada uno aporte lo que pueda y reciba lo que necesite."
-        if -6 <= x < -2: return "Mutualismo", "Propones un mercado libre de verdad, sin Estado ni bancos centrales. Crees en cooperativas donde la gente se ayude mutuamente y el intercambio sea justo para todos."
-        if -2 <= x <= 2: return "Anarquismo Individualista", "Para ti lo más importante eres TÚ. Pasas de cualquier institución que te diga qué hacer. Defiendes una autonomía total donde nadie tenga poder sobre nadie más."
-        if 2 < x <= 6: return "Voluntarismo", "Crees que todas las relaciones humanas deben ser porque ambas partes quieran. Odias al Estado porque te obliga a hacer cosas, y defiendes que la libertad de elegir es la base de todo."
-        return "Anarcocapitalismo", "Crees que el Estado es un robo. Quieres que todo se privatice (carreteras, justicia, seguridad...) y confías en que el mercado libre sea el que organice el mundo de forma perfecta."
-
 # --- PANTALLA RESULTADOS ---
 if st.session_state.idx >= len(questions):
-    st.markdown('<h1 class="main-title">Compás Político</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title">Tus Resultados</h1>', unsafe_allow_html=True)
     x, y = max(min(st.session_state.x, 10), -10), max(min(st.session_state.y, 10), -10)
     id_nom, id_desc = get_long_desc(x, y)
     
     st.markdown(f'<div class="result-bubble"><p class="ideology-title">{id_nom}</p><p class="ideology-desc">{id_desc}</p></div>', unsafe_allow_html=True)
 
-    # Gráfico del Compás
-    leaders_html = "".join([f"""
-        <div style="position:absolute; width:10px; height:10px; background:{l['c']}; border-radius:50%; left:{50 + (l['x']*4.6)}%; top:{50 - (l['y']*4.6)}%; transform:translate(-50%,-50%); border:1px solid black; z-index:5;"></div>
-        <div style="position:absolute; font-size:11px; font-weight:900; left:{50 + (l['x']*4.6)}%; top:{50 - (l['y']*4.6)}%; transform:translate(-50%, 8px); color:#1E293B; z-index:6; white-space:nowrap; text-shadow: 1px 1px white;">{l['n']}</div>
+    # Gráfico
+    leaders_js = "".join([f"""
+        <div style="position:absolute; width:10px; height:10px; background:{l['c']}; border-radius:50%; left:{50 + (l['x']*4.6)}%; top:{50 - (l['y']*4.6)}%; transform:translate(-50%,-50%); border:1px solid black;"></div>
+        <div style="position:absolute; font-size:10px; font-weight:bold; left:{50 + (l['x']*4.6)}%; top:{50 - (l['y']*4.6)}%; transform:translate(-50%, 8px); color:black; white-space:nowrap;">{l['n']}</div>
     """ for l in LEADERS])
 
-    compass_code = f"""
-    <div style="position:relative; width:650px; height:650px; margin:20px auto; background:white; border:4px solid #1e293b; overflow:hidden; border-radius:15px; font-family: sans-serif;">
-        <div style="position:absolute; width:50%; height:50%; top:0; left:0; background:rgba(239,68,68,0.2);"></div>
-        <div style="position:absolute; width:50%; height:50%; top:0; right:0; background:rgba(59,130,246,0.2);"></div>
-        <div style="position:absolute; width:50%; height:50%; bottom:0; left:0; background:rgba(34,197,94,0.2);"></div>
-        <div style="position:absolute; width:50%; height:50%; bottom:0; right:0; background:rgba(234,179,8,0.2);"></div>
-        <div style="position:absolute; width:100%; height:3px; background:#1e293b; top:50%;"></div>
-        <div style="position:absolute; width:3px; height:100%; background:#1e293b; left:50%;"></div>
-        {leaders_html}
-        <div style="position:absolute; width:18px; height:18px; background:red; border:3px solid white; border-radius:50%; left:{50+(x*4.6)}%; top:{50-(y*4.6)}%; transform:translate(-50%,-50%); z-index:100; box-shadow:0 0 10px rgba(255,0,0,0.5);"></div>
-        <div style="position:absolute; color:red; font-weight:1000; font-size:20px; left:{50+(x*4.6)}%; top:{50-(y*4.6)}%; transform:translate(-50%, {"-35px" if y < -8 else "18px"}); z-index:101; text-shadow:2px 2px white, -2px -2px white;">TÚ</div>
+    compass_html = f"""
+    <div id="capture" style="position:relative; width:600px; height:600px; margin:auto; background:white; border:3px solid black; font-family:Arial;">
+        <div style="position:absolute; width:50%; height:50%; top:0; left:0; background:rgba(239,68,68,0.15); border-right:1px solid #ccc; border-bottom:1px solid #ccc;"></div>
+        <div style="position:absolute; width:50%; height:50%; top:0; right:0; background:rgba(59,130,246,0.15); border-bottom:1px solid #ccc;"></div>
+        <div style="position:absolute; width:50%; height:50%; bottom:0; left:0; background:rgba(34,197,94,0.15); border-right:1px solid #ccc;"></div>
+        <div style="position:absolute; width:50%; height:50%; bottom:0; right:0; background:rgba(234,179,8,0.15);"></div>
+        <div style="position:absolute; width:100%; height:2px; background:black; top:50%;"></div>
+        <div style="position:absolute; width:2px; height:100%; background:black; left:50%;"></div>
+        {leaders_js}
+        <div style="position:absolute; width:16px; height:16px; background:red; border:2px solid white; border-radius:50%; left:{50+(x*4.6)}%; top:{50-(y*4.6)}%; transform:translate(-50%,-50%); z-index:100;"></div>
+        <div style="position:absolute; color:red; font-weight:900; left:{50+(x*4.6)}%; top:{50-(y*4.6)}%; transform:translate(-50%, 15px); z-index:101;">TÚ</div>
     </div>
     """
-    components.html(compass_code, height=680)
+    components.html(compass_html, height=620)
 
-    st.markdown("<h2 style='text-align:center; color:#1E3A8A;'>¿A quién te pareces más?</h2>", unsafe_allow_html=True)
+    st.markdown("### Afinidad con líderes")
     for l in LEADERS: l['match'] = max(0, 100 - (math.sqrt((x-l['x'])**2 + (y-l['y'])**2) * 5.5))
     for l in sorted(LEADERS, key=lambda k: k['match'], reverse=True)[:3]:
         st.markdown(f'<div class="leader-match"><span>{l["n"]}</span><span>{l["match"]:.1f}%</span></div>', unsafe_allow_html=True)
 
-    # BOTONES FINALES
-    if st.button("🖨️ GUARDAR / IMPRIMIR RESULTADOS"):
-        components.html("<script>window.print();</script>", height=0)
-    if st.button("🔄 VOLVER A EMPEZAR"):
+    if st.button("🖨️ GUARDAR COMO PDF / IMPRIMIR"):
+        # Script mejorado para imprimir
+        components.html("<script>setTimeout(function(){ window.print(); }, 500);</script>", height=0)
+    
+    if st.button("🔄 REPETIR TEST"):
         st.session_state.update({'idx': 0, 'x': 0.0, 'y': 0.0, 'hist': []})
         st.rerun()
 
@@ -243,10 +270,11 @@ else:
     st.markdown('<h1 class="main-title">Compás Político</h1>', unsafe_allow_html=True)
     
     if st.session_state.idx == 0:
-        st.markdown('<p class="welcome-text">¡Hola! Descubre cuál es tu verdadera ideología política con este test de 85 preguntas. No hay respuestas correctas o incorrectas, solo tu opinión.</p>', unsafe_allow_html=True)
-        st.markdown('<div class="warning-box">Responde lo que pienses de verdad. Si no entiendes alguna pregunta, usa el botón "Neutral".</div>', unsafe_allow_html=True)
+        st.markdown('<p class="welcome-text">Descubre dónde encajas en el mapa político con este test diseñado para jóvenes.</p>', unsafe_allow_html=True)
+        st.markdown('<div class="warning-box">Responde con sinceridad. Si no entiendes algo, dale a "Neutral".</div>', unsafe_allow_html=True)
     
-    st.markdown(f'<p class="q-counter">Pregunta {st.session_state.idx + 1} de 85</p>', unsafe_allow_html=True)
+    # El contador ahora tiene margen inferior para no pegarse a la barra
+    st.markdown(f'<span class="q-counter">Pregunta {st.session_state.idx + 1} de 85</span>', unsafe_allow_html=True)
     st.progress(st.session_state.idx / 85)
     
     st.markdown(f'<div class="question-container"><span class="question-text">{questions[st.session_state.idx]["t"]}</span></div>', unsafe_allow_html=True)
