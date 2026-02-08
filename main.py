@@ -2,52 +2,47 @@ import streamlit as st
 import streamlit.components.v1 as components
 import math
 
-# 1. CONFIGURACIÓN Y ESTILO (Azul claro solicitado)
-st.set_page_config(page_title="Compás Político Total", layout="centered")
+# 1. CONFIGURACIÓN Y ESTILO
+st.set_page_config(page_title="Compás Político Profesional", layout="centered")
 
 st.markdown("""
     <style>
     .stApp { background-color: #E0F2FE; } 
     .main .block-container { max-width: 850px; padding-top: 2rem; text-align: center; }
-    .main-title { font-size: 60px; font-weight: 950; color: #1E3A8A; margin-bottom: 20px; text-align: center; width: 100%; }
+    .main-title { font-size: 60px; font-weight: 950; color: #1E3A8A; margin-bottom: 20px; text-align: center; }
     
     .welcome-box { 
-        background-color: #DBEAFE; 
-        border: 2px solid #3B82F6; 
+        background-color: #DBEAFE; border: 2px solid #3B82F6; 
         border-radius: 15px; padding: 25px; margin-bottom: 30px; 
         color: #1E40AF; text-align: center; font-size: 18px; font-weight: 500;
     }
 
-    .q-counter { font-size: 18px; color: #1E40AF; font-weight: 700; margin-bottom: 10px; display: block; text-align: center; }
-    .question-container { margin: 40px auto; min-height: 140px; display: flex; align-items: center; justify-content: center; max-width: 750px; }
+    .q-counter { font-size: 18px; color: #1E40AF; font-weight: 700; margin-bottom: 10px; display: block; }
+    .question-container { margin: 40px auto; min-height: 140px; display: flex; align-items: center; justify-content: center; }
     .question-text { font-size: 32px !important; font-weight: 800; color: #1E3A8A; line-height: 1.2; text-align: center; }
 
-    /* Botones de respuestas - Burbuja azul claro */
     div.stButton > button { 
         width: 100% !important; height: 58px !important; border-radius: 14px !important; 
         font-size: 19px !important; font-weight: 700; margin-bottom: 10px !important; 
-        border: 2px solid #3B82F6 !important;
-        background-color: #DBEAFE !important; 
-        color: #1E40AF !important; 
-        transition: 0.3s;
+        border: 2px solid #3B82F6 !important; background-color: #DBEAFE !important; 
+        color: #1E40AF !important; transition: 0.3s;
     }
     div.stButton > button:hover { background-color: #BFDBFE !important; border-color: #1E3A8A !important; }
 
     .back-btn button { 
         background-color: #93C5FD !important; color: white !important; 
         border: 2px solid #60A5FA !important; height: 45px !important; margin-top: 15px !important; 
-        width: 100% !important; border-radius: 14px !important;
     }
 
     .result-bubble { 
         background-color: #DBEAFE; border-radius: 30px; padding: 40px; 
         border: 6px solid #3B82F6; margin: 30px auto; text-align: center; 
     }
-    .ideology-title { font-size: 45px !important; font-weight: 950; color: #1D4ED8; text-transform: uppercase; display: block; }
-    .ideology-desc { font-size: 20px; color: #1E40AF; line-height: 1.5; margin-top: 15px; font-weight: 500; }
+    .ideology-title { font-size: 42px !important; font-weight: 950; color: #1D4ED8; text-transform: uppercase; display: block; margin-bottom: 10px; }
+    .ideology-desc { font-size: 19px; color: #1E40AF; line-height: 1.4; font-weight: 500; display: block; }
     .match-tag { 
-        font-size: 24px; font-weight: 800; color: #1E40AF; margin-top: 25px; 
-        background: #BFDBFE; padding: 15px 30px; border-radius: 20px; display: inline-block; border: 2px solid #60A5FA;
+        font-size: 22px; font-weight: 800; color: #1E40AF; margin-top: 25px; 
+        background: #BFDBFE; padding: 12px 25px; border-radius: 20px; display: inline-block; border: 2px solid #60A5FA;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -79,12 +74,12 @@ LEADERS = [
     {"n": "Rousseau", "x": -5, "y": 4, "c": "#4299E1"}
 ]
 
-# 3. LAS 85 PREGUNTAS (Económicas x, Sociales y)
+# 3. LAS 85 PREGUNTAS
 questions = [
     # ECONÓMICAS
     {"t": "El salario mínimo debería ser eliminado para fomentar la contratación.", "a": "x", "v": 1},
     {"t": "La sanidad debe ser 100% pública, gratuita y universal.", "a": "x", "v": -1},
-    {"t": "El Estado debe gestionar sectores como la energía y el agua.", "a": "x", "v": -1},
+    {"t": "El Estado debe gestionar sectores estratégicos como la energía.", "a": "x", "v": -1},
     {"t": "Privatizar empresas públicas mejora siempre la eficiencia.", "a": "x", "v": 1},
     {"t": "Los impuestos a las grandes fortunas deben subir drásticamente.", "a": "x", "v": -1},
     {"t": "El mercado libre sin regulaciones es el mejor motor de progreso.", "a": "x", "v": 1},
@@ -170,38 +165,38 @@ questions = [
     {"t": "El castigo físico moderado a niños es educativo.", "a": "y", "v": 1}
 ]
 
-# 4. LÓGICA DE LAS 25 IDEOLOGÍAS
+# 4. LÓGICA DE LAS 25 IDEOLOGÍAS (DESCRIPCIONES DE 2 LÍNEAS)
 def get_full_ideology(x, y):
     if y > 6:
-        if x < -6: return "Marxismo-Leninismo", "Control estatal total y abolición de clases."
-        if x < -2: return "Nacionalbolchevismo", "Economía soviética con nacionalismo extremo."
-        if x < 2: return "Totalitarismo Central", "Poder absoluto del Estado sobre toda la vida."
-        if x < 6: return "Fascismo Clásico", "Unidad nacional y corporativismo autoritario."
-        return "Derecha Radical Autoritaria", "Mercado para élites y orden policial implacable."
+        if x < -6: return "Marxismo-Leninismo", "Defiende la abolición de la propiedad privada mediante el control total del Estado.\nBusca la dictadura del proletariado para eliminar las clases sociales por la fuerza."
+        if x < -2: return "Nacionalbolchevismo", "Combina una economía de planificación centralizada de estilo soviético con valores ultranacionalistas.\nRechaza el globalismo y defiende una identidad nacional rígida bajo mando estatal."
+        if x < 2: return "Totalitarismo Central", "Establece el predominio absoluto del Estado sobre todos los aspectos de la vida pública y privada.\nSuprime toda disidencia y centraliza el poder en una figura o partido único e infalible."
+        if x < 6: return "Fascismo Clásico", "Promueve la unidad nacional a través de un Estado corporativista y autoritario de carácter militar.\nSubordina los intereses individuales al destino de la nación bajo una jerarquía estricta."
+        return "Derecha Radical Autoritaria", "Fusiona un capitalismo de mercado para las élites con un control policial y social implacable.\nDefiende la jerarquía natural y el castigo severo a cualquier desviación de la norma establecida."
     elif y > 2:
-        if x < -6: return "Socialismo de Estado", "Gestión pública para garantizar igualdad básica."
-        if x < -2: return "Socialdemocracia", "Capitalismo corregido por fuerte bienestar social."
-        if x < 2: return "Centrismo Pragmático", "Soluciones basadas en evidencia, no en dogmas."
-        if x < 6: return "Conservadurismo", "Tradición, orden y mercado regulado por la moral."
-        return "Derecha Autoritaria", "Libertad económica bajo un mando social rígido."
+        if x < -6: return "Socialismo de Estado", "Aboga por la propiedad pública de los medios de producción dentro de un marco autoritario suave.\nGarantiza la igualdad mediante la burocracia estatal y la planificación económica dirigida."
+        if x < -2: return "Socialdemocracia", "Busca humanizar el capitalismo mediante un fuerte Estado del bienestar y redistribución de riqueza.\nDefiende servicios públicos universales financiados con impuestos progresivos y justicia social."
+        if x < 2: return "Centrismo Pragmático", "Evita los extremismos ideológicos buscando soluciones técnicas basadas en la eficiencia y el equilibrio.\nCombina la libertad de mercado con protecciones sociales moderadas según la necesidad del momento."
+        if x < 6: return "Conservadurismo", "Prioriza el mantenimiento del orden social, la tradición religiosa y la estabilidad de las instituciones.\nDefiende la propiedad privada y la moral tradicional como pilares de una sociedad funcional."
+        return "Derecha Autoritaria", "Sostiene que la libertad económica requiere un marco social rígido y una autoridad fuerte.\nPromueve el patriotismo y el respeto a la ley como métodos para preservar la civilización."
     elif y > -2:
-        if x < -6: return "Socialismo Democrático", "Igualdad económica por vías democráticas."
-        if x < -2: return "Populismo de Izquierda", "Protección estatal frente a élites globales."
-        if x < 2: return "Liberalismo Progresista", "Libertades civiles y mercado con regulación."
-        if x < 6: return "Liberalismo Clásico", "Derechos de propiedad y Estado muy limitado."
-        return "Minarquismo", "Estado reducido solo a policía, justicia y defensa."
+        if x < -6: return "Socialismo Democrático", "Propone la transición hacia una economía socializada mediante mecanismos democráticos y pluralismo.\nBusca empoderar a los trabajadores y eliminar la explotación sin suprimir las libertades civiles."
+        if x < -2: return "Populismo de Izquierda", "Moviliza a las clases populares contra las élites económicas y globales mediante el liderazgo fuerte.\nDefiende la soberanía nacional y la protección del mercado interno para el beneficio del pueblo."
+        if x < 2: return "Liberalismo Progresista", "Defiende las libertades civiles individuales y los derechos de las minorías dentro de un mercado regulado.\nCree en el progreso social y la intervención estatal limitada para corregir desigualdades de origen."
+        if x < 6: return "Liberalismo Clásico", "Sostiene que el papel del Estado debe limitarse estrictamente a proteger la vida y la propiedad.\nConsidera que el libre intercambio es la fuente principal de prosperidad y libertad humana."
+        return "Minarquismo", "Propugna que el Estado solo debe encargarse de la seguridad, la justicia y la defensa nacional.\nCualquier otra función estatal es vista como una interferencia ilegítima en la libertad individual."
     elif y > -6:
-        if x < -6: return "Anarcosindicalismo", "Sindicatos autogestionados sin Estado central."
-        if x < -2: return "Socialismo Libertario", "Cooperación voluntaria sin jerarquías."
-        if x < 2: return "Libertarismo Progresista", "Libertad personal y mercado sin privilegios."
-        if x < 6: return "Objetivismo", "Capitalismo de laissez-faire y egoísmo racional."
-        return "Paleolibertarismo", "Libertad económica y valores tradicionales."
+        if x < -6: return "Anarcosindicalismo", "Propone la gestión de la sociedad a través de sindicatos autogestionados y la acción directa obrera.\nRechaza tanto el Estado como el sistema salarial en favor de la federación de trabajadores."
+        if x < -2: return "Socialismo Libertario", "Defiende la propiedad colectiva y la cooperación voluntaria sin necesidad de un gobierno central.\nBusca la máxima autonomía individual en una sociedad organizada horizontalmente y sin jerarquías."
+        if x < 2: return "Libertarismo Progresista", "Combina una libertad personal radical en temas sociales con un mercado libre de privilegios corporativos.\nRechaza las leyes de moralidad estatal y aboga por la soberanía del individuo sobre su cuerpo."
+        if x < 6: return "Objetivismo", "Filosofía basada en el egoísmo racional, el capitalismo de laissez-faire y la realidad objetiva.\nConsidera que el individuo debe vivir para sí mismo, sin sacrificarse por otros ni pedir sacrificios."
+        return "Paleolibertarismo", "Une la oposición radical al Estado con valores culturales tradicionales y conservadores en lo social.\nCree que la libertad económica es más estable dentro de comunidades con moralidad clásica."
     else:
-        if x < -6: return "Anarcocomunismo", "Comunas libres sin dinero ni propiedad privada."
-        if x < -2: return "Mutualismo", "Intercambio justo y cooperativas sin lucro."
-        if x < 2: return "Anarquismo Individualista", "Soberanía absoluta del individuo sobre el grupo."
-        if x < 6: return "Voluntarismo", "Toda interacción humana debe ser consentida."
-        return "Anarcocapitalismo", "Propiedad privada total; el Estado es un robo."
+        if x < -6: return "Anarcocomunismo", "Sociedad organizada en comunas libres donde se produce según la capacidad y se consume según necesidad.\nAbolición total del dinero, el Estado y la propiedad privada en favor de la ayuda mutua absoluta."
+        if x < -2: return "Mutualismo", "Sistema económico basado en el intercambio recíproco y cooperativas que operan sin beneficio de lucro.\nPropone que cada trabajador reciba el producto íntegro de su labor mediante contratos voluntarios."
+        if x < 2: return "Anarquismo Individualista", "Sostiene que la voluntad del individuo es la única ley y no debe estar sujeta a grupos o Estados.\nDefiende la autonomía personal absoluta y la asociación libre basada en el beneficio mutuo."
+        if x < 6: return "Voluntarismo", "Toda forma de asociación humana debe ser estrictamente voluntaria y carecer de cualquier coacción.\nRechaza la existencia del Estado por considerarlo una institución basada necesariamente en la violencia."
+        return "Anarcocapitalismo", "Defiende la privatización total de todos los servicios, incluyendo la ley, la policía y los tribunales.\nConsidera la propiedad privada como el derecho absoluto y el Estado como una organización criminal."
 
 # 5. MOTOR
 if 'idx' not in st.session_state:
@@ -220,44 +215,37 @@ def volver():
 
 # --- RESULTADOS ---
 if st.session_state.idx >= len(questions):
-    st.markdown('<h1 class="main-title">Compás Político</h1>', unsafe_allow_html=True)
-    
-    # Cálculo preciso 10x10
+    st.markdown('<h1 class="main-title">Tu Compás Político</h1>', unsafe_allow_html=True)
     total_x = len([q for q in questions if q['a'] == 'x'])
     total_y = len([q for q in questions if q['a'] == 'y'])
     ux = max(min((sum(st.session_state.hx) / (total_x * 2)) * 10, 10), -10)
     uy = max(min((sum(st.session_state.hy) / (total_y * 2)) * 10, 10), -10)
-    
     name, desc = get_full_ideology(ux, uy)
     match = min(LEADERS, key=lambda l: math.sqrt((ux-l['x'])**2 + (uy-l['y'])**2))['n']
     
-    st.markdown(f'<div class="result-bubble"><span class="ideology-title">{name}</span><p class="ideology-desc">{desc}</p><span class="match-tag">Más cercano a: {match}</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="result-bubble"><span class="ideology-title">{name}</span><span class="ideology-desc">{desc}</span><span class="match-tag">Más cercano a: {match}</span></div>', unsafe_allow_html=True)
     
     px, py = 250 + (ux * 23), 250 - (uy * 23)
-    leaders_svg = "".join([f'<circle cx="{250+(l["x"]*23)}" cy="{250-(l["y"]*23)}" r="5" fill="{l["c"]}" stroke="black"/><text x="{250+(l["x"]*23)}" y="{250-(l["y"]*23)+14}" font-size="10" text-anchor="middle" font-weight="bold">{l["n"]}</text>' for l in LEADERS])
+    leaders_svg = "".join([f'<circle cx="{250+(l["x"]*23)}" cy="{250-(l["y"]*23)}" r="5" fill="{l["c"]}" stroke="black"/><text x="{250+(l["x"]*23)}" y="{250-(l["y"]*23)+14}" font-size="10" text-anchor="middle" font-weight="bold" font-family="sans-serif">{l["n"]}</text>' for l in LEADERS])
     
-    svg = f"""<div style="display:flex; justify-content:center;"><svg width="500" height="500" viewBox="0 0 500 500" style="border:3px solid #333; background:white;">
+    svg = f"""<div style="display:flex; justify-content:center;"><svg width="500" height="500" viewBox="0 0 500 500" style="border:3px solid #333; background:white; font-family: sans-serif;">
         <rect width="250" height="250" fill="#FFB2B2" opacity="0.5"/><rect x="250" width="250" height="250" fill="#B2B2FF" opacity="0.5"/><rect y="250" width="250" height="250" fill="#B2FFB2" opacity="0.5"/><rect x="250" y="250" width="250" height="250" fill="#FFFFB2" opacity="0.5"/>
         <line x1="250" y1="0" x2="250" y2="500" stroke="black"/><line x1="0" y1="250" x2="500" y2="250" stroke="black"/>{leaders_svg}
-        <circle cx="{px}" cy="{py}" r="10" fill="red" stroke="white" stroke-width="4"/><text x="{px}" y="{py-18}" fill="red" font-weight="900" font-size="22" text-anchor="middle">TÚ</text></svg></div>"""
+        <circle cx="{px}" cy="{py}" r="10" fill="red" stroke="white" stroke-width="4"/><text x="{px}" y="{py-18}" fill="red" font-weight="950" font-size="22" text-anchor="middle">TÚ</text></svg></div>"""
     components.html(svg, height=520)
-    if st.button("REINICIAR"): st.session_state.update({'idx': 0, 'hx': [], 'hy': []}); st.rerun()
+    if st.button("REINICIAR TEST"): st.session_state.update({'idx': 0, 'hx': [], 'hy': []}); st.rerun()
 
 # --- PREGUNTAS ---
 else:
     st.markdown('<h1 class="main-title">Compás Político</h1>', unsafe_allow_html=True)
-    if st.session_state.idx == 0: st.markdown('<div class="welcome-box">Bienvenido al test de 85 variables. Responde con sinceridad.</div>', unsafe_allow_html=True)
+    if st.session_state.idx == 0: st.markdown('<div class="welcome-box">Test de 85 variables. Responde honestamente para un resultado exacto.</div>', unsafe_allow_html=True)
     st.markdown(f'<span class="q-counter">Pregunta {st.session_state.idx + 1} de {len(questions)}</span>', unsafe_allow_html=True)
     st.progress(st.session_state.idx / len(questions))
     st.markdown(f'<div class="question-container"><p class="question-text">{questions[st.session_state.idx]["t"]}</p></div>', unsafe_allow_html=True)
-    
     st.button("✅ Totalmente de acuerdo", on_click=responder, args=(2,))
     st.button("👍 De acuerdo", on_click=responder, args=(1,))
     st.button("😐 Neutral / No lo sé", on_click=responder, args=(0,))
     st.button("👎 En desacuerdo", on_click=responder, args=(-1,))
     st.button("❌ Totalmente en desacuerdo", on_click=responder, args=(-2,))
-    
     if st.session_state.idx > 0: 
-        st.markdown('<div class="back-btn">', unsafe_allow_html=True)
-        st.button("⬅️ Pregunta Anterior", on_click=volver)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="back-btn">', unsafe_allow_html=True); st.button("⬅️ Pregunta Anterior", on_click=volver); st.markdown('</div>', unsafe_allow_html=True)
