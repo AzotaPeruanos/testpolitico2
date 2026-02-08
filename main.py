@@ -1,81 +1,86 @@
 import streamlit as st
 import base64
 
-# 1. ESTÉTICA Y CSS BLINDADO
-st.set_page_config(page_title="Brújula Política Estudiantil", layout="centered")
+# 1. CSS ULTRA-AGRESIVO (Corrige transparencia y botones unidos)
+st.set_page_config(page_title="Brújula Política Estudiantil", layout="wide")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #E3F2FD; }
+    .stApp { background-color: #F0F4F8; }
     
-    .question-text {
-        text-align: center;
-        font-size: 32px !important; 
-        font-weight: 800;
-        color: #0D47A1;
-        margin-bottom: 40px;
-    }
-
-    /* CONTENEDOR DE BOTONES CON DESPLAZAMIENTO A LA DERECHA */
-    div.stButton > button {
-        width: 600px !important; 
-        height: 60px !important;
-        border-radius: 30px !important;
+    /* Forzar visibilidad del texto en botones */
+    button p {
+        color: black !important;
+        font-weight: 800 !important;
         font-size: 18px !important;
-        font-weight: bold !important;
-        margin-left: 50px !important; 
-        border: none !important;
-        transition: 0.2s;
-        color: white !important;
     }
 
-    /* COLORES POR CONTENIDO DEL TEXTO (INFALIBLE) */
-    button[kind="secondary"]:has(div:contains("Totalmente de acuerdo")) { background-color: #1B5E20 !important; }
-    button[kind="secondary"]:has(div:contains("De acuerdo")) { background-color: #4CAF50 !important; }
-    button[kind="secondary"]:has(div:contains("No estoy seguro / Neutral")) { background-color: #FFFFFF !important; color: #1565C0 !important; border: 2px solid #BBDEFB !important; }
-    button[kind="secondary"]:has(div:contains("En desacuerdo")) { background-color: #E57373 !important; }
-    button[kind="secondary"]:has(div:contains("Totalmente en desacuerdo")) { background-color: #B71C1C !important; }
+    /* Contenedor de preguntas */
+    .question-box {
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+
+    /* BOTONES DE RESPUESTA: Colores sólidos y anchos */
+    div.stButton > button {
+        width: 100% !important;
+        max-width: 700px !important;
+        height: 60px !important;
+        margin: 10px auto !important;
+        display: block !important;
+        border-radius: 15px !important;
+        border: 2px solid rgba(0,0,0,0.1) !important;
+    }
+
+    /* Colores específicos por posición de botón */
+    div[data-testid="stVerticalBlock"] > div:nth-child(2) button { background-color: #2E7D32 !important; } /* Verde Oscuro */
+    div[data-testid="stVerticalBlock"] > div:nth-child(3) button { background-color: #A5D6A7 !important; } /* Verde Claro */
+    div[data-testid="stVerticalBlock"] > div:nth-child(4) button { background-color: #FFFFFF !important; } /* Blanco */
+    div[data-testid="stVerticalBlock"] > div:nth-child(5) button { background-color: #EF9A9A !important; } /* Rojo Claro */
+    div[data-testid="stVerticalBlock"] > div:nth-child(6) button { background-color: #C62828 !important; } /* Rojo Oscuro */
     
-    /* Botones de control */
-    button[kind="secondary"]:has(div:contains("VOLVER")), 
-    button[kind="secondary"]:has(div:contains("REINICIAR")),
-    button[kind="secondary"]:has(div:contains("IMPRIMIR")) { 
-        background-color: #455A64 !important; 
-        width: 280px !important;
-        margin-left: 0px !important;
-    }
+    /* Ajuste texto para botones oscuros */
+    div[data-testid="stVerticalBlock"] > div:nth-child(2) button p,
+    div[data-testid="stVerticalBlock"] > div:nth-child(6) button p { color: white !important; }
 
-    .result-header {
-        background: white; padding: 30px; border-radius: 20px;
-        text-align: center; border-left: 10px solid #1976D2; margin-bottom: 20px;
+    /* Botones de control (Gris) */
+    .control-btn button {
+        background-color: #546E7A !important;
+        color: white !important;
+        height: 50px !important;
+        width: 250px !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. LÓGICA
+# 2. LÓGICA DE DATOS
 if 'idx' not in st.session_state:
     st.session_state.update({'idx': 0, 'x': 0.0, 'y': 0.0, 'hist': []})
 
 def responder(puntos):
     q = questions[st.session_state.idx]
-    val = puntos * 12.0 * q["v"] 
+    val = puntos * 15.0 * q["v"] 
     if q["a"] == "x": st.session_state.x += val
     else: st.session_state.y += val
     st.session_state.hist.append((val if q["a"]=="x" else 0, val if q["a"]=="y" else 0))
     st.session_state.idx += 1
 
-# 3. DATOS
 LEADERS = [
-    {"n": "Milei", "x": 175, "y": -165, "c": "#FFD600"},
-    {"n": "Stalin", "x": -185, "y": 185, "c": "#D32F2F"},
-    {"n": "Hitler", "x": 160, "y": 180, "c": "#37474F"},
-    {"n": "Mao", "x": -190, "y": 160, "c": "#F44336"},
-    {"n": "Gandhi", "x": -130, "y": -160, "c": "#4CAF50"},
-    {"n": "Rothbard", "x": 190, "y": -190, "c": "#FF9800"},
-    {"n": "Thatcher", "x": 140, "y": 110, "c": "#1976D2"},
-    {"n": "Castro", "x": -160, "y": 140, "c": "#2E7D32"}
+    {"n": "Milei", "x": 170, "y": -160, "c": "#FFD600"},
+    {"n": "Stalin", "x": -180, "y": 180, "c": "#D32F2F"},
+    {"n": "Hitler", "x": 150, "y": 170, "c": "#37474F"},
+    {"n": "Mao", "x": -190, "y": 150, "c": "#F44336"},
+    {"n": "Gandhi", "x": -120, "y": -150, "c": "#4CAF50"},
+    {"n": "Rothbard", "x": 185, "y": -190, "c": "#FF9800"},
+    {"n": "Thatcher", "x": 130, "y": 100, "c": "#1976D2"},
+    {"n": "Castro", "x": -150, "y": 130, "c": "#2E7D32"}
 ]
 
+# (Aquí van las 85 preguntas que ya definimos, las mantengo en la estructura)
 questions = [
     {"t": "Cualquier persona debería poder abrir un negocio sin que el gobierno le ponga muchas reglas.", "a": "x", "v": 1},
     {"t": "Los hospitales deberían ser siempre gratis y pagados con nuestros impuestos.", "a": "x", "v": -1},
@@ -159,7 +164,7 @@ questions = [
     {"t": "Las huelgas solo sirven para perder tiempo.", "a": "x", "v": 1},
     {"t": "La tecnología nos hace menos humanos.", "a": "y", "v": 1},
     {"t": "Los multimillonarios deben dar su dinero al Estado.", "a": "x", "v": -1},
-    {"t": "Hay que prohibir pronto los coches de gasolina.", "a": "x", "v": -1},
+    {"t": "Prohibir pronto los coches de gasolina.", "a": "x", "v": -1},
     {"t": "Sin autoridad la sociedad sería un caos.", "a": "y", "v": 1},
     {"t": "Cualquier tiempo pasado fue mejor.", "a": "y", "v": 1}
 ]
@@ -168,17 +173,28 @@ questions = [
 if st.session_state.idx >= len(questions):
     x, y = st.session_state.x, st.session_state.y
     
-    # Eje X: Económico
-    eje_x = "DERECHA (Capitalista)" if x > 0 else "IZQUIERDA (Socialista)"
-    # Eje Y: Social
-    eje_y = "AUTORITARIO" if y > 0 else "LIBERTARIO"
+    # 9 IDEOLOGÍAS DETALLADAS
+    if y > 60:
+        if x > 60: n, d = "FASCISMO / AUTORITARISMO DE DERECHAS", "Estado central fuerte, valores tradicionales y economía nacionalista corporativa."
+        elif x < -60: n, d = "COMUNISMO / ESTALINISMO", "Control total del Estado sobre la economía y la vida social para eliminar clases."
+        else: n, d = "ESTATISMO", "Crees que el gobierno debe dirigir la sociedad en todos sus aspectos."
+    elif y < -60:
+        if x > 60: n, d = "ANARCOCAPITALISMO", "Soberanía individual total. El Estado no debería existir, solo la propiedad privada."
+        elif x < -60: n, d = "ANARCOCOMUNISMO", "Abolición del Estado y del dinero. Sociedad basada en la ayuda mutua voluntaria."
+        else: n, d = "LIBERTARISMO", "Máxima libertad personal y escepticismo ante cualquier poder centralizado."
+    else:
+        if x > 60: n, d = "NEOLIBERALISMO", "Defensa del libre mercado, impuestos bajos y responsabilidad individual."
+        elif x < -60: n, d = "SOCIALDEMOCRACIA", "Sistema democrático con fuertes ayudas sociales y regulación económica."
+        else: n, d = "CENTRISMO", "Equilibrio entre libertad y seguridad, buscando soluciones pragmáticas."
 
-    st.markdown(f"""
-        <div class="result-header">
-            <h1 style="margin:0; color:#0D47A1;">TU RESULTADO</h1>
-            <h2 style="color:#1976D2;">{eje_y} en lo social / {eje_x} en lo económico</h2>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f'<div style="background:white; padding:30px; border-radius:15px; border-left:10px solid #1976D2; margin-bottom:20px;">'
+                f'<h1 style="color:#0D47A1; margin:0;">{n}</h1>'
+                f'<p style="font-size:18px; color:#444;">{d}</p></div>', unsafe_allow_html=True)
+
+    # Sub-ejes
+    c1, c2 = st.columns(2)
+    with c1: st.metric("Eje Económico (X)", f"{'Derecha' if x>0 else 'Izquierda'}", f"{int(abs(x))}%")
+    with c2: st.metric("Eje Social (Y)", f"{'Autoritario' if y>0 else 'Libertario'}", f"{int(abs(y))}%")
 
     def get_b64(f):
         try:
@@ -187,41 +203,40 @@ if st.session_state.idx >= len(questions):
 
     img_data = get_b64("chart.png")
     
-    # Etiquetas de Líderes + Tu Punto
-    l_html = "".join([f'''
-        <div style="position:absolute; left:{50+(l["x"]*0.23)}%; top:{50-(l["y"]*0.23)}%; transform:translate(-50%,-50%); text-align:center; z-index:10;">
-            <div style="width:12px; height:12px; background:{l["c"]}; border-radius:50%; border:1px solid white; margin:0 auto;"></div>
-            <div style="font-size:10px; font-weight:bold; color:black; background:rgba(255,255,255,0.7); padding:1px 3px; border-radius:3px;">{l["n"]}</div>
-        </div>
-    ''' for l in LEADERS])
+    # Marcadores Líderes
+    l_html = "".join([f'<div style="position:absolute; left:{50+(l["x"]*0.23)}%; top:{50-(l["y"]*0.23)}%; transform:translate(-50%,-50%); text-align:center;">'
+                      f'<div style="width:12px; height:12px; background:{l["c"]}; border-radius:50%; border:2px solid white;"></div>'
+                      f'<div style="font-size:10px; font-weight:bold; color:black; background:rgba(255,255,255,0.8); padding:1px 3px; border-radius:3px;">{l["n"]}</div></div>' for l in LEADERS])
     
+    # MARCADOR TÚ (Alta visibilidad)
     ux, uy = max(5, min(95, 50 + (x * 0.23))), max(5, min(95, 50 - (y * 0.23)))
     
     st.markdown(f"""
-        <div style="position:relative; width:450px; height:450px; margin:20px auto; border:5px solid #0D47A1; border-radius:10px; overflow:hidden; background:white;">
+        <div style="position:relative; width:500px; height:500px; margin:20px auto; border:5px solid #0D47A1; border-radius:10px; background:white;">
             <img src="data:image/png;base64,{img_data}" style="width:100%; height:100%;">
             {l_html}
-            <div style="position:absolute; left:{ux}%; top:{uy}%; transform:translate(-50%,-50%); text-align:center; z-index:100;">
-                <div style="width:25px; height:25px; background:#FF1744; border-radius:50%; border:3px solid white; box-shadow:0 0 10px red;"></div>
-                <div style="font-size:14px; font-weight:bold; color:white; background:#FF1744; padding:2px 5px; border-radius:5px; margin-top:2px;">TÚ</div>
+            <div style="position:absolute; left:{ux}%; top:{uy}%; transform:translate(-50%,-50%); z-index:999;">
+                <div style="width:30px; height:30px; background:#FF1744; border-radius:50%; border:4px solid white; box-shadow:0 0 15px rgba(255,0,0,0.8);"></div>
+                <div style="font-size:16px; font-weight:900; color:white; background:#FF1744; padding:2px 8px; border-radius:5px; margin-top:5px; text-shadow:1px 1px 2px black;">TÚ</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
+    # BOTONES FINALES SEPARADOS
     st.write("---")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔄 REINICIAR TEST"):
+    col_a, col_b, col_c = st.columns([1, 0.2, 1])
+    with col_a:
+        if st.button("🔄 REINICIAR TEST", use_container_width=True):
             st.session_state.update({'idx':0, 'x':0, 'y':0, 'hist':[]})
             st.rerun()
-    with col2:
-        if st.button("🖨️ IMPRIMIR / PDF"):
+    with col_c:
+        if st.button("🖨️ IMPRIMIR / GUARDAR PDF", use_container_width=True):
             st.components.v1.html("<script>window.print();</script>", height=0)
 
 # --- PANTALLA DE PREGUNTAS ---
 else:
     st.progress(st.session_state.idx / len(questions))
-    st.markdown(f'<div class="question-text">{questions[st.session_state.idx]["t"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="question-box"><h2 style="color:#0D47A1;">{questions[st.session_state.idx]["t"]}</h2></div>', unsafe_allow_html=True)
     
     st.button("Totalmente de acuerdo", on_click=responder, args=(2,))
     st.button("De acuerdo", on_click=responder, args=(1,))
