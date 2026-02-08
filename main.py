@@ -1,7 +1,7 @@
 import streamlit as st
 import base64
 
-# 1. ESTÉTICA DEFINITIVA Y CONTROL DE COLORES
+# 1. ESTÉTICA DEFINITIVA: COLORES FIJOS, BOTONES IGUALES Y LIGERO DESPLAZAMIENTO
 st.set_page_config(page_title="Brújula Política Estudiantil", layout="centered")
 
 st.markdown("""
@@ -22,64 +22,55 @@ st.markdown("""
         display: flex;
         justify-content: center;
         width: 100%;
-        margin-left: 20px; /* Desplazamiento ligero a la derecha */
+        padding-left: 40px; /* Desplazamiento ligero a la derecha solicitado */
     }
 
     div.stButton > button {
-        width: 620px !important; 
-        height: 70px !important;
-        border-radius: 35px !important;
-        font-size: 20px !important;
+        width: 650px !important; /* Todos exactamente iguales */
+        height: 75px !important;
+        border-radius: 40px !important;
+        font-size: 22px !important;
         font-weight: bold !important;
         border: none !important;
-        margin: 8px 0px !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        margin: 10px 0px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
         transition: 0.3s;
     }
 
-    /* COLORES ESPECÍFICOS POR POSICIÓN (Basado en el orden de renderizado) */
-    /* 1. Totalmente de acuerdo - Verde Oscuro */
-    div[data-testid="stVerticalBlock"] > div:nth-child(3) div.stButton button { background-color: #1B5E20 !important; color: white !important; }
-    /* 2. De acuerdo - Verde Claro */
-    div[data-testid="stVerticalBlock"] > div:nth-child(4) div.stButton button { background-color: #81C784 !important; color: #052b08 !important; }
-    /* 3. Neutral - Blanco */
-    div[data-testid="stVerticalBlock"] > div:nth-child(5) div.stButton button { background-color: #FFFFFF !important; color: #1565C0 !important; border: 2px solid #BBDEFB !important; }
-    /* 4. En desacuerdo - Rojo Claro */
-    div[data-testid="stVerticalBlock"] > div:nth-child(6) div.stButton button { background-color: #EF9A9A !important; color: #7f0000 !important; }
-    /* 5. Totalmente en desacuerdo - Rojo Oscuro */
-    div[data-testid="stVerticalBlock"] > div:nth-child(7) div.stButton button { background-color: #B71C1C !important; color: white !important; }
+    /* ASIGNACIÓN DE COLORES QUIRÚRGICA */
+    /* Usamos nth-of-type para asegurar que cada botón reciba su color sin fallos */
+    
+    /* 1. Totalmente de acuerdo - VERDE OSCURO */
+    div[data-testid="stVerticalBlock"] > div:nth-child(3) button { background-color: #1B5E20 !important; color: white !important; }
+    
+    /* 2. De acuerdo - VERDE CLARO */
+    div[data-testid="stVerticalBlock"] > div:nth-child(4) button { background-color: #81C784 !important; color: #052b08 !important; }
+    
+    /* 3. Neutral - BLANCO / GRIS MUY CLARO */
+    div[data-testid="stVerticalBlock"] > div:nth-child(5) button { background-color: #FFFFFF !important; color: #1565C0 !important; border: 2px solid #BBDEFB !important; }
+    
+    /* 4. En desacuerdo - ROJO CLARO */
+    div[data-testid="stVerticalBlock"] > div:nth-child(6) button { background-color: #EF9A9A !important; color: #7f0000 !important; }
+    
+    /* 5. Totalmente en desacuerdo - ROJO OSCURO (Corregido tamaño y color) */
+    div[data-testid="stVerticalBlock"] > div:nth-child(7) button { background-color: #B71C1C !important; color: white !important; }
 
-    /* Botón Volver / Reiniciar / Imprimir */
-    div[data-testid="stVerticalBlock"] > div:nth-child(8) div.stButton button,
-    .print-btn button { 
+    /* Botones de Navegación y Utilidades (Volver, Reiniciar, Imprimir) */
+    div[data-testid="stVerticalBlock"] > div:nth-child(8) button, 
+    .stDownloadButton button { 
         background-color: #546E7A !important; 
         color: white !important; 
         width: 300px !important;
+        height: 50px !important;
+        font-size: 16px !important;
         margin-top: 30px !important;
     }
 
     div.stButton > button:hover { transform: scale(1.02); filter: brightness(1.1); }
-
-    .result-card {
-        background-color: white; padding: 40px; border-radius: 30px;
-        text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        border: 6px solid #1976D2;
-    }
-    .map-container {
-        position: relative; width: 450px; height: 450px; 
-        margin: 30px auto; border: 10px solid white; border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2); overflow: hidden;
-    }
-    .dot { position: absolute; border-radius: 50%; border: 2px solid white; transform: translate(-50%, -50%); }
-    .user-dot {
-        width: 40px; height: 40px; background-color: #FF1744; z-index: 100;
-        box-shadow: 0 0 20px #FF1744; border: 4px solid white; color: white;
-        display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;
-    }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. LÓGICA
+# 2. SISTEMA DE DATOS Y PREGUNTAS
 if 'idx' not in st.session_state:
     st.session_state.update({'idx': 0, 'x': 0.0, 'y': 0.0, 'hist': []})
 
@@ -102,7 +93,6 @@ LEADERS = [
     {"n": "Castro", "x": -170, "y": 150, "c": "#2E7D32"}
 ]
 
-# 3. PREGUNTAS (85)
 questions = [
     {"t": "Cualquier persona debería poder abrir un negocio sin que el gobierno le ponga muchas reglas.", "a": "x", "v": 1},
     {"t": "Los hospitales deberían ser siempre gratis y pagados con nuestros impuestos.", "a": "x", "v": -1},
@@ -191,40 +181,49 @@ questions = [
     {"t": "Cualquier tiempo pasado fue mucho mejor.", "a": "y", "v": 1}
 ]
 
-# --- PANTALLAS ---
+# --- FLUJO DE PANTALLAS ---
 if st.session_state.idx >= len(questions):
     x, y = st.session_state.x, st.session_state.y
     
-    if x > 100 and y > 100: n, d = "DERECHA AUTORITARIA", "Orden social fuerte y libertad económica."
-    elif x < -100 and y > 100: n, d = "IZQUIERDA AUTORITARIA", "Estado fuerte que controla la economía."
-    elif x > 100 and y < -100: n, d = "LIBERALISMO RADICAL", "Libertad individual y mercado por encima de todo."
-    elif x < -100 and y < -100: n, d = "IZQUIERDA LIBERTARIA", "Comunidades libres sin jerarquías."
-    else: n, d = "CENTRO POLÍTICO", "Moderación y sentido común."
+    # Clasificación de resultados
+    if x > 100 and y > 100: n, d = "DERECHA AUTORITARIA", "Buscas orden social y libertad de mercado."
+    elif x < -100 and y > 100: n, d = "IZQUIERDA AUTORITARIA", "Crees en un Estado fuerte que gestione la economía."
+    elif x > 100 and y < -100: n, d = "LIBERALISMO RADICAL", "La libertad individual es tu valor supremo."
+    elif x < -100 and y < -100: n, d = "IZQUIERDA LIBERTARIA", "Buscas justicia social sin jerarquías estatales."
+    else: n, d = "CENTRO POLÍTICO", "Eres moderado y equilibrado."
 
-    st.markdown(f'<div class="result-card"><div class="result-title" style="font-size:50px; color:#0D47A1;">{n}</div><div class="result-desc">{d}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="background:white; padding:40px; border-radius:30px; text-align:center; border:6px solid #1976D2;"><h1 style="color:#0D47A1; font-size:50px;">{n}</h1><p style="font-size:24px;">{d}</p></div>', unsafe_allow_html=True)
 
+    # MAPA DE RESULTADOS
     def get_b64(f):
         try:
             with open(f, "rb") as b: return base64.b64encode(b.read()).decode()
         except: return ""
 
     img_data = get_b64("chart.png")
-    l_html = "".join([f'<div class="dot" style="left:{50+(l["x"]*0.23)}%; top:{50-(l["y"]*0.23)}%; width:16px; height:16px; background:{l["c"]}; z-index:50;"></div>' for l in LEADERS])
+    l_html = "".join([f'<div style="position:absolute; left:{50+(l["x"]*0.23)}%; top:{50-(l["y"]*0.23)}%; width:16px; height:16px; background:{l["c"]}; border-radius:50%; border:2px solid white; transform:translate(-50%,-50%); z-index:50;"></div>' for l in LEADERS])
     ux, uy = max(8, min(92, 50 + (x * 0.23))), max(8, min(92, 50 - (y * 0.23)))
     
-    st.markdown(f'<div class="map-container"><img src="data:image/png;base64,{img_data}" style="width:100%; height:100%;">{l_html}<div class="dot user-dot" style="left:{ux}%; top:{uy}%;">Tú</div></div>', unsafe_allow_html=True)
+    st.markdown(f"""
+        <div style="position:relative; width:450px; height:450px; margin:30px auto; border:10px solid white; border-radius:20px; box-shadow:0 15px 35px rgba(0,0,0,0.2); overflow:hidden;">
+            <img src="data:image/png;base64,{img_data}" style="width:100%; height:100%;">
+            {l_html}
+            <div style="position:absolute; left:{ux}%; top:{uy}%; width:40px; height:40px; background:#FF1744; border-radius:50%; border:4px solid white; color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; transform:translate(-50%,-50%); z-index:100; box-shadow:0 0 20px #FF1744;">Tú</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # BOTONES FINALES
+    # BOTONES DE CIERRE
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🔄 REINICIAR"):
+        if st.button("🔄 REINICIAR TEST"):
             st.session_state.update({'idx':0, 'x':0, 'y':0, 'hist':[]})
             st.rerun()
     with col2:
-        if st.button("🖨️ IMPRIMIR / PDF"):
-            st.components.v1.html("<script>window.print();</script>", height=0)
+        # Botón de Imprimir / PDF
+        st.button("🖨️ IMPRIMIR / PDF", on_click=lambda: st.components.v1.html("<script>window.print();</script>", height=0))
 
 else:
+    # Pantalla de Juego
     st.progress(st.session_state.idx / len(questions))
     st.markdown(f'<div class="question-text">{questions[st.session_state.idx]["t"]}</div>', unsafe_allow_html=True)
     
@@ -235,7 +234,7 @@ else:
     st.button("Totalmente en desacuerdo", on_click=responder, args=(-2,))
 
     if st.session_state.idx > 0:
-        if st.button("⬅️ VOLVER ATRÁS"):
+        if st.button("⬅️ VOLVER A LA PREGUNTA ANTERIOR"):
             px, py = st.session_state.hist.pop()
             st.session_state.x -= px; st.session_state.y -= py
             st.session_state.idx -= 1
